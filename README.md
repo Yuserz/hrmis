@@ -9,20 +9,20 @@ A modern HR Management Information System built with [Next.js](https://nextjs.or
 - **UI Components:** [shadcn/ui](https://ui.shadcn.com)
 - **State Management:** [Zustand](https://zustand-demo.pmnd.rs/)
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
-- **Package Manager:** [pnpm](https://pnpm.io/)
+- **Package Manager:** [Yarn](https://yarnpkg.com/)
 
 ## Getting Started
 
 First, install dependencies:
 
 ```bash
-pnpm install
+yarn install
 ```
 
 Then, run the development server:
 
 ```bash
-pnpm dev
+yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the app.
@@ -50,10 +50,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 
 ## Useful Scripts
 
-- `pnpm dev` – Start the development server
-- `pnpm build` – Build for production
-- `pnpm start` – Start the production server
-- `pnpm lint` – Run ESLint
+- `yarn dev` – Start the development server
+- `yarn build` – Build for production
+- `yarn start` – Start the production server
+- `yarn lint` – Run ESLint
 
 ## Learn More
 
