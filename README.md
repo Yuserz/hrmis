@@ -1,70 +1,104 @@
-# HRMIS
+# HRMIS Installation Guide
 
-A modern HR Management Information System built with [Next.js](https://nextjs.org), [Supabase](https://supabase.com), [shadcn/ui](https://ui.shadcn.com), [Zustand](https://zustand-demo.pmnd.rs/), and [TypeScript](https://www.typescriptlang.org/). Uses the Next.js App Directory structure.
+This guide outlines how to set up and manage the HRMIS repository using Make commands and Supabase.
 
-## Tech Stack
+---
 
-- **Framework:** [Next.js](https://nextjs.org) (App Directory)
-- **Database & Auth:** [Supabase](https://supabase.com)
-- **UI Components:** [shadcn/ui](https://ui.shadcn.com)
-- **State Management:** [Zustand](https://zustand-demo.pmnd.rs/)
-- **Language:** [TypeScript](https://www.typescriptlang.org/)
-- **Package Manager:** [Yarn](https://yarnpkg.com/)
+## 🚀 Getting Started
 
-## Getting Started
+Make sure the following are installed on your machine:
 
-First, install dependencies:
+- [Node.js](https://nodejs.org/) (LTS recommended)
+- [Yarn](https://yarnpkg.com/)
+- [Docker](https://www.docker.com/) (ensure it's running)
 
-```bash
-yarn install
-```
+### Installation Steps
 
-Then, run the development server:
+1. Install dependencies:
 
-```bash
-yarn dev
-```
+   ```bash
+   yarn
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the app.
+2. Set up Supabase (ensure Docker is running):
 
-## Project Structure
+   ```bash
+   make setup-supabase
+   ```
 
-This project uses the Next.js App Directory structure:
+3. Run the development server:
+   ```bash
+   make run-dev
+   ```
 
-```
-/app         # Application routes and pages
-/components  # Reusable UI components
-/lib         # Utilities and helpers
-/store       # Zustand stores
-/types       # TypeScript types
-```
+---
 
-## Environment Variables
+## 🔧 Cleaning and Stopping
 
-Create a `.env.local` file in the root and add your Supabase credentials:
+- Clean all configurations and stop running containers:
 
-```
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
+  ```bash
+  make clean
+  ```
 
-## Useful Scripts
+- Stop the database only:
+  ```bash
+  make stop-db
+  ```
 
-- `yarn dev` – Start the development server
-- `yarn build` – Build for production
-- `yarn start` – Start the production server
-- `yarn lint` – Run ESLint
+---
 
-## Learn More
+## ✅ Build and Lint
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Supabase Documentation](https://supabase.com/docs)
-- [shadcn/ui Docs](https://ui.shadcn.com/docs)
-- [Zustand Docs](https://docs.pmnd.rs/zustand/getting-started/introduction)
-- [TypeScript Docs](https://www.typescriptlang.org/docs/)
+- Check builds and run linters:
+  ```bash
+  make build-app
+  ```
 
-## Deployment
+---
 
-The easiest way to deploy your Next.js app is with [Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
+## 👀 Production Preview (Local)
 
-See the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying)
+- Start the app in production mode locally:
+  ```bash
+  make start-app
+  ```
+
+---
+
+## 🛠️ Supabase Configuration
+
+### 📦 Create a Migration
+
+- Create a new migration:
+  ```bash
+  make migrate-new name=[file-name]
+  ```
+
+### ⬆️ Apply Migrations
+
+- Apply all pending migrations:
+  ```bash
+  make migrate-up
+  ```
+
+### 🔍 Migration Diff
+
+- Check differences between local DB and migration files:
+  ```bash
+  make migrate-diff
+  ```
+
+### ♻️ Reset Database
+
+- Reset and reapply migrations:
+  ```bash
+  make migrate-reset
+  ```
+
+---
+
+## 📌 Notes
+
+- Replace `[file-name]` with a descriptive name for the migration.
+- Ensure Docker is running before executing any Supabase-related commands.

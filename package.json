@@ -6,17 +6,24 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "start:db": "yarn supabase start",
+    "stop:db": "yarn supabase stop"
   },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.53.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-prettier": "^5.5.4",
     "lodash": "^4.17.21",
     "next": "15.4.5",
+    "prettier": "^3.6.2",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",
     "shadcn-ui": "^0.9.5",
+    "supabase": "^2.33.9",
     "zustand": "^5.0.7"
   },
   "devDependencies": {
