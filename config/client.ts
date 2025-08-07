@@ -1,8 +1,8 @@
-import { createBrowserClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 
-export function createClient() {
+export async function createSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const key = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY
 
   if (!url || !key) {
     throw new Error(
@@ -10,5 +10,5 @@ export function createClient() {
     )
   }
   // Create a supabase client on the browser with project's credentials
-  return createBrowserClient(url, key)
+  return createClient(url, key)
 }
