@@ -42,16 +42,16 @@ setup-supabase: init-log
 	@rm -f supabase_output.txt
 	@echo "[$(TIMESTAMP)] Temporary output file cleaned up" | tee -a $(LOG_FILE)
 
-make run-dev:
+run-dev:
 	yarn supabase start
 	yarn dev
 	@echo "running dev with supabase"
 
-make start-app:
+start-app:
 	yarn start
 	@echo "Starting the app"
 
-make build-app:
+build-app:
 	yarn lint
 	yarn build
 	@echo "Finish checking linter and building"
