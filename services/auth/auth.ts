@@ -1,0 +1,37 @@
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
+import { UserForm } from '@/lib/types/users'
+
+export interface UseAuth extends UserForm {
+  setUserInfo: (user: UserForm) => void
+  reset: () => void
+}
+
+const initialState: UserForm = {
+  avatar: '',
+  email: '',
+  employee_id: '',
+  id: '',
+  role: '',
+  archived_at: ''
+}
+
+export const useAuth = create<UseAuth>()(
+  persist(
+    (set) => ({
+      ...initialState,
+      setUserInfo: (user: UserForm) => {
+        set({
+          ...user
+        })
+      },
+      reset: () => {
+        set(initialState)
+      }
+    }),
+    {
+      name: 'use-business-details',
+      storage: createJSONStorage(() => sessionStorage)
+    }
+  )
+)

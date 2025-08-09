@@ -26,7 +26,7 @@ setup-supabase: init-log
 	@echo "[$(TIMESTAMP)] Creating .env file with Supabase configurations..." | tee -a $(LOG_FILE)
 	@echo "Creating .env file with Supabase configurations..." 
 	@if [ -s supabase_output.txt ]; then \
-		echo "NEXT_PUBLIC_DESTINATION=/login" >> .env; \
+		echo "NEXT_PUBLIC_DESTINATION=/auth/sign-in" >> .env; \
 		echo "NEXT_PUBLIC_APP_URL=http://localhost:3000" >> .env; \
 		echo "NEXT_IMAGE_PUBLIC_URL=http://127.0.0.1:54324/storage/**" >> .env; \
 		echo "NEXT_PUBLIC_SUPABASE_URL=$$(grep 'API URL' supabase_output.txt | awk -F': ' '{print $$2}' | tr -d '\r')" >> .env; \
@@ -81,5 +81,8 @@ migrate-diff:
 
 migrate-reset:
 	@yarn supabase db reset
+
+generate-types:
+	yarn supabase gen types typescript --local
 
 .PHONY: all init-log setup-supabase clean migrate-new migrate-up migrate-diff migrate-reset stop-db run-dev
