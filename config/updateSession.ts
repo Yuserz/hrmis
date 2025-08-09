@@ -1,6 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const isRestrictedPath = (path: string[], pathname: string): boolean =>
+  path.some((item) => pathname.startsWith(item))
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request
@@ -42,36 +45,52 @@ export async function updateSession(request: NextRequest) {
 
   const { data: userData } = await supabase
     .from('users')
-    .select('role, name, gender, address, phone')
+    .select('role, id')
     .eq('id', user?.id)
     .single()
 
-  const baseAdminURL = `/backend/${user?.id}`
-  const baseUserURL = `/users/${user?.id}`
+  const baseAdminURL = `/backend/${userData?.id}`
+  const baseUserURL = `/employee/${userData?.id}`
 
-  const protectedAdminRoutes = ['dashboard']
+  const protectedAdminRoutes = ['dashboard', 'user']
+  const employeeRestrictedRoutes = ['/backend', '/staff']
+  const staffRestrictedRoutes = ['/backend', '/employee']
+  const adminRestrictedRoutes = ['/employee', '/staff']
 
   const isProtected = protectedAdminRoutes.some((route) =>
     pathname.endsWith(route)
   )
 
   if (!user && isProtected) {
-    return NextResponse.redirect(new URL('/auth/login', request.url))
+    return NextResponse.redirect(new URL('/auth/sign-in', request.url))
   }
 
-  if (userData?.role === 'user' && pathname.startsWith('/backend')) {
+  if (
+    userData?.role === 'employee' &&
+    isRestrictedPath(employeeRestrictedRoutes, pathname)
+  ) {
     return NextResponse.redirect(
-      new URL(`${baseUserURL}/businesses`, request.url)
+      new URL(`${baseUserURL}/dashboard`, request.url)
     )
   }
 
-  if (userData?.role === 'admin' && pathname.startsWith('/users')) {
+  if (
+    userData?.role === 'staff' &&
+    isRestrictedPath(staffRestrictedRoutes, pathname)
+  ) {
+    return NextResponse.redirect(new URL(`${baseUserURL}/user`, request.url))
+  }
+
+  if (
+    userData?.role === 'admin' &&
+    isRestrictedPath(adminRestrictedRoutes, pathname)
+  ) {
     return NextResponse.redirect(
-      new URL(`${baseAdminURL}/businesses`, request.url)
+      new URL(`${baseAdminURL}/dashboard`, request.url)
     )
   }
 
-  if (user && pathname === '/auth/login' && userData?.role === 'admin') {
+  if (user && pathname === '/auth/sign-in' && userData?.role === 'admin') {
     return NextResponse.redirect(
       new URL(`${baseAdminURL}/businesses`, request.url)
     )
