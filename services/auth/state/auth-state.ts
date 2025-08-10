@@ -12,8 +12,7 @@ const initialState: UserForm = {
   email: '',
   employee_id: '',
   id: '',
-  role: '',
-  archived_at: ''
+  role: ''
 }
 
 export const useAuth = create<UseAuth>()(
