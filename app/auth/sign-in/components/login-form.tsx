@@ -9,10 +9,10 @@ import { regularEmailRegex } from '@/helpers/reusableRegex'
 import { useRouter } from 'next/navigation'
 import { SignIn, UserForm } from '@/lib/types/users'
 import { Ban } from 'lucide-react'
-import { useAuth } from '@/services/auth/auth'
-import axios, { AxiosError } from 'axios'
+import { useAuth } from '@/services/auth/state/auth-state'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { useShallow } from 'zustand/shallow'
+import { signIn } from '@/services/auth/auth.services'
 
 export function LoginForm({
   className,
@@ -35,31 +35,25 @@ export function LoginForm({
   const onSubmit = async ({ email, password }: SignIn): Promise<void> => {
     startTransition(async () => {
       try {
-        const response = await axios.post<{
-          data: UserForm
-          error: AxiosError
-        }>('/api/auth/sign-in', {
-          email,
-          password
-        })
+        const data = await signIn(email, password)
 
-        const { data } = response.data
+        setUserInfo(data as UserForm)
 
-        const { role, id: userId } = data
-
-        setUserInfo(data)
-
-        if (role === 'employee') {
-          router.push(`/employee/${userId}/dashboard`)
+        if (data?.role === 'staff') {
+          router.push(`/staff/${data?.id}/user`)
 
           return
         }
 
-        router.push(`/backend/${userId}/dashboard`)
-      } catch (e) {
-        if (axios.isAxiosError(e)) {
-          setMessage(e.response?.data.error)
+        if (data?.role === 'employee') {
+          router.push(`/employee/${data?.id}/dashboard`)
+
+          return
         }
+
+        router.push(`/backend/${data?.id}/dashboard`)
+      } catch (error) {
+        setMessage(error as string)
       }
     })
   }

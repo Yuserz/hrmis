@@ -4,7 +4,7 @@ import {
   unauthorizedResponse,
   generalErrorResponse
 } from '@/app/api/helpers/response'
-import { SignIn } from '@/lib/types/users'
+import { SignIn, UserForm } from '@/lib/types/users'
 import { createClient } from '@/config'
 
 export async function POST(req: NextRequest) {
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('role, email, employee_id, avatar, created_at, updated_at')
+      .select('role, email, employee_id, avatar')
       .eq('id', data.user?.id)
       .single()
 
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     return successResponse({
       message: 'Signed in successfully',
-      data: { ...userData, id: data.user?.id }
+      data: { ...userData, id: data.user?.id } as UserForm
     })
   } catch (error) {
     const newError = error as Error

@@ -51,6 +51,7 @@ export async function updateSession(request: NextRequest) {
 
   const baseAdminURL = `/backend/${userData?.id}`
   const baseUserURL = `/employee/${userData?.id}`
+  const baseStaffURL = `/staff/${userData?.id}`
 
   const protectedAdminRoutes = ['dashboard', 'user']
   const employeeRestrictedRoutes = ['/backend', '/staff']
@@ -78,7 +79,7 @@ export async function updateSession(request: NextRequest) {
     userData?.role === 'staff' &&
     isRestrictedPath(staffRestrictedRoutes, pathname)
   ) {
-    return NextResponse.redirect(new URL(`${baseUserURL}/user`, request.url))
+    return NextResponse.redirect(new URL(`${baseStaffURL}/user`, request.url))
   }
 
   if (
