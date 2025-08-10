@@ -37,6 +37,11 @@ export function NavUser({
     permanentRedirect(`/backend/${baseUrl[2]}/settings`)
   }
 
+  const signOutUser = async (): Promise<void> => {
+    await signOut()
+    permanentRedirect('/auth/sign-in')
+  }
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -83,7 +88,7 @@ export function NavUser({
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
+            <DropdownMenuItem onClick={() => signOutUser()}>
               <LogOut />
               Log out
             </DropdownMenuItem>

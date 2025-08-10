@@ -1,8 +1,7 @@
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import { AxiosResponse } from 'axios'
 import { toast } from 'sonner'
 import { UserForm } from '@/lib/types/users'
-import { permanentRedirect } from 'next/navigation'
 
 export const signIn = async (
   email: string,
@@ -30,12 +29,7 @@ export const signIn = async (
 
 export const signOut = async (): Promise<void> => {
   try {
-    await axios.post<{
-      data: UserForm
-      error: AxiosError
-    }>('/api/auth/sign-out')
-
-    permanentRedirect('/auth/sign-in')
+    await axios.post('/api/auth/sign-out')
   } catch (e) {
     if (axios.isAxiosError(e)) {
       toast.error('ERROR!', {
