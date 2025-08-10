@@ -2,18 +2,39 @@ import { NextRequest } from 'next/server'
 import {
   successResponse,
   unauthorizedResponse,
-  generalErrorResponse
+  generalErrorResponse,
+  badRequestResponse
 } from '@/app/api/helpers/response'
 import { SignIn, UserForm } from '@/lib/types/users'
 import { createClient } from '@/config'
+import { isEmpty } from 'lodash'
 
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as SignIn
     const supabase = await createClient()
 
+    if (isEmpty(body)) {
+      return badRequestResponse()
+    }
+
+    const { data: foundUser, error: foundUserError } = await supabase
+      .from('users')
+      .select('email')
+      .or(`username.eq.${body.username}`)
+      .limit(1)
+      .maybeSingle()
+
+    if (foundUserError) {
+      return unauthorizedResponse({ error: foundUserError?.message })
+    }
+
+    if (!foundUser) {
+      return unauthorizedResponse({ error: 'Invalid credentials' })
+    }
+
     const { error, data } = await supabase.auth.signInWithPassword({
-      email: body.email as string,
+      email: foundUser?.email as string,
       password: body.password as string
     })
 
