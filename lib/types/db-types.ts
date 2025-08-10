@@ -372,6 +372,7 @@ export type Database = {
         Row: {
           archived_at: string | null
           avatar: string | null
+          username: string | null
           created_at: string | null
           email: string
           employee_id: string | null
@@ -384,6 +385,7 @@ export type Database = {
           avatar?: string | null
           created_at?: string | null
           email: string
+          username: string
           employee_id?: string | null
           id: string
           role: string
@@ -394,6 +396,7 @@ export type Database = {
           avatar?: string | null
           created_at?: string | null
           email?: string
+          username?: string
           employee_id?: string | null
           id?: string
           role?: string

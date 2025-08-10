@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils'
 import { CustomButton } from '@/components/custom/CustomButton'
 import { useForm, FormProvider } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
-import { regularEmailRegex } from '@/helpers/reusableRegex'
 import { useRouter } from 'next/navigation'
 import { SignIn, UserForm } from '@/lib/types/users'
 import { Ban } from 'lucide-react'
@@ -32,10 +31,10 @@ export function LoginForm({
 
   const router = useRouter()
 
-  const onSubmit = async ({ email, password }: SignIn): Promise<void> => {
+  const onSubmit = async ({ username, password }: SignIn): Promise<void> => {
     startTransition(async () => {
       try {
-        const data = await signIn(email, password)
+        const data = await signIn(username as string, password)
 
         setUserInfo(data as UserForm)
 
@@ -88,19 +87,15 @@ export function LoginForm({
 
           <div className='grid gap-6'>
             <Input
-              id='email'
-              title='Email'
-              type='email'
-              placeholder='example@email.com'
-              {...register('email', {
-                required: 'field required.',
-                pattern: {
-                  value: regularEmailRegex,
-                  message: 'invalid email address'
-                }
+              id='username'
+              title='Username'
+              type='username'
+              placeholder='username'
+              {...register('username', {
+                required: 'field required.'
               })}
-              hasError={!!errors.email}
-              errorMessage={errors.email?.message as string}
+              hasError={!!errors.username}
+              errorMessage={errors.username?.message as string}
             />
             <div className='grid gap-2'>
               <Input

@@ -4,14 +4,14 @@ import { toast } from 'sonner'
 import { UserForm } from '@/lib/types/users'
 
 export const signIn = async (
-  email: string,
+  username: string,
   password: string
 ): Promise<UserForm | undefined> => {
   try {
     const response = await axios.post<AxiosResponse<UserForm>>(
       '/api/auth/sign-in',
       {
-        email,
+        username,
         password
       }
     )
