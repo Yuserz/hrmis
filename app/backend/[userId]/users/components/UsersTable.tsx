@@ -13,12 +13,20 @@ import {
   useReactTable,
   VisibilityState
 } from '@tanstack/react-table'
-import { ChevronDown, Plus } from 'lucide-react'
+import {
+  ChevronDown,
+  Plus,
+  MoreHorizontal,
+  Pencil,
+  File,
+  Trash
+} from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
+  DropdownMenuItem
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
@@ -36,7 +44,6 @@ import { Button } from '@/components/ui/button'
 import { Users } from '@/lib/types/users'
 import { useCreateUserDialog } from '@/services/auth/state/add-user-dialog'
 import { useShallow } from 'zustand/shallow'
-
 import { avatarName } from '@/helpers/avatarName'
 
 interface UserTableData {
@@ -119,28 +126,36 @@ export function UsersTable({ users: data }: UserTableData) {
             {format(row.getValue('updated_at'), "MMMM dd, yyyy hh:mm aaaaa'm'")}
           </div>
         )
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        enableHiding: false,
+        cell: () => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' className='h-8 w-8 p-0'>
+                <span className='sr-only'>Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuItem>
+                <File />
+                View PDS
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Pencil />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Trash />
+                Revoke
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
       }
-      // {
-      //   id: 'actions',
-      //   header: 'Actions',
-      //   enableHiding: false,
-      //   cell: () => (
-      //     <DropdownMenu>
-      //       <DropdownMenuTrigger asChild>
-      //         <Button variant='ghost' className='h-8 w-8 p-0'>
-      //           <span className='sr-only'>Open menu</span>
-      //           <MoreHorizontal />
-      //         </Button>
-      //       </DropdownMenuTrigger>
-      //       <DropdownMenuContent align='end'>
-      //         <DropdownMenuItem>
-      //           <Shield />
-      //           Make admin
-      //         </DropdownMenuItem>
-      //       </DropdownMenuContent>
-      //     </DropdownMenu>
-      //   )
-      // }
     ],
     []
   )
