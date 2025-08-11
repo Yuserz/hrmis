@@ -11,7 +11,7 @@ const initialState: AddUserDialog = {
   open: false
 }
 
-export const useCreateCategoryDialog = create<AddUserDialog>()(
+export const useCreateUserDialog = create<AddUserDialog>()(
   persist(
     (set) => ({
       ...initialState,

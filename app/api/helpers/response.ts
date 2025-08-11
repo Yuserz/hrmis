@@ -10,6 +10,16 @@ export function generalErrorResponse<T>(data?: T): Response {
   )
 }
 
+export function conflictRequestResponse<T>(data?: T): NextResponse {
+  return new NextResponse(
+    JSON.stringify(data || { message: 'entry conflict' }),
+    {
+      status: 409,
+      headers: { 'Content-Type': 'application/json' }
+    }
+  )
+}
+
 export function successResponse<T>(data?: T): NextResponse {
   return new NextResponse(JSON.stringify(data || { message: 'Successfuly' }), {
     status: 200,

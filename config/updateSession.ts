@@ -93,7 +93,7 @@ export async function updateSession(request: NextRequest) {
 
   if (user && pathname === '/auth/sign-in' && userData?.role === 'admin') {
     return NextResponse.redirect(
-      new URL(`${baseAdminURL}/businesses`, request.url)
+      new URL(`${baseAdminURL}/dashboard`, request.url)
     )
   }
 

@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { createClient } from '@/config'
-import { cookies } from 'next/headers'
+import { createClient } from '@/config/client'
+import cookie from 'cookies-next'
 
 export const client = () => {
   const api = axios.create({
@@ -12,7 +12,7 @@ export const client = () => {
 
   api.interceptors.request.use(
     async (config) => {
-      const supabase = await createClient()
+      const supabase = createClient()
       const { data } = await supabase.auth.refreshSession()
       const { session } = data
 
@@ -28,8 +28,7 @@ export const client = () => {
     const interceptor = api.interceptors.response.use(
       (response) => response,
       async (error) => {
-        const cookie = await cookies()
-        const supabase = await createClient()
+        const supabase = createClient()
         const { data } = await supabase.auth.refreshSession()
         const { session } = data
 
@@ -43,9 +42,8 @@ export const client = () => {
 
             error.response.config.headers.Authorization = `Bearer ${session.access_token}`
           } catch (error) {
-            cookie.getAll().forEach((cookieStore) => {
-              cookie.delete(cookieStore.name)
-            })
+            await supabase.auth.signOut()
+            cookie.deleteCookie('sb-127-auth-token')
 
             return Promise.reject(error)
           } finally {

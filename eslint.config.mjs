@@ -67,7 +67,7 @@ const eslintConfig = [
         'error',
         {
           selector: ['variable'],
-          format: ['camelCase']
+          format: ['camelCase', 'snake_case']
         }
       ],
       '@typescript-eslint/no-unused-vars': [

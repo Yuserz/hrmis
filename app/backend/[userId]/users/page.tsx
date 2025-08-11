@@ -1,4 +1,5 @@
 import { JSX } from 'react'
+import { AddUserDialog } from './components/add-user-dialog'
 import { UserActions } from './components/UserActions'
 import { Container } from '@/components/custom/Container'
 
@@ -10,6 +11,7 @@ export default function Users(): JSX.Element {
     >
       <UserActions />
       users
+      <AddUserDialog />
     </Container>
   )
 }

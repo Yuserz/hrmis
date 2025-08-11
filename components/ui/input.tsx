@@ -6,6 +6,7 @@ interface InputType extends React.ComponentProps<'input'> {
   hasError?: boolean
   errorMessage?: string
   title?: string
+  isOptional?: boolean
 }
 
 function Input({
@@ -14,11 +15,15 @@ function Input({
   title,
   hasError,
   errorMessage,
+  isOptional = false,
   ...props
 }: InputType) {
   return (
     <div className='grid w-full'>
-      <Label className='text-sm font-medium mb-1.5'>{title}</Label>
+      <Label className='text-sm font-medium mb-1.5'>
+        {title}
+        {!isOptional ? '*' : ' (optional)'}
+      </Label>
       <input
         type={type}
         data-slot='input'
