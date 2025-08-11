@@ -38,7 +38,12 @@ export async function POST(req: Request) {
     const { error, data } = await supabase.auth.admin.createUser({
       email: body.email as string,
       password: body.password as string,
-      email_confirm: true
+      email_confirm: true,
+      user_metadata: {
+        username: body.username,
+        employee_id: body.employee_id,
+        role: body.role
+      }
     })
 
     if (error) {
@@ -47,16 +52,19 @@ export async function POST(req: Request) {
       })
     }
 
-    const { error: userError } = await supabase
-      .from('users')
-      .update({
+    const { error: userError } = await supabase.from('users').upsert(
+      {
+        id: data.user.id,
+        email: body.email as string,
         employee_id: body.employee_id as string,
         role: body.role as string,
         username: body.username as string
-      })
-      .eq('id', data.user.id)
+      },
+      { onConflict: 'id' }
+    )
 
     if (userError) {
+      await supabase.auth.admin.deleteUser(data.user.id)
       return badRequestResponse({ error: userError.message })
     }
 

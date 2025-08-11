@@ -84,7 +84,7 @@ export function AddUserDialog(): JSX.Element {
 
         await signUp({
           email,
-          username: username as string,
+          username: username?.toLowerCase() as string,
           password,
           role,
           employee_id
@@ -177,7 +177,7 @@ export function AddUserDialog(): JSX.Element {
             )}
           </div>
 
-          <Input title='Employee ID' isOptional />
+          <Input title='Employee ID' isOptional {...register('employee_id')} />
         </div>
         {!!message && <p className='text-sm text-red-500'>{message}</p>}
         <DialogFooter>

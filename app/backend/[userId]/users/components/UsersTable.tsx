@@ -123,7 +123,12 @@ export function UsersTable({ users: data }: UserTableData) {
         header: 'Updated At',
         cell: ({ row }) => (
           <div className='capitalize'>
-            {format(row.getValue('updated_at'), "MMMM dd, yyyy hh:mm aaaaa'm'")}
+            {row.getValue('updated_at')
+              ? format(
+                  row.getValue('updated_at'),
+                  "MMMM dd, yyyy hh:mm aaaaa'm'"
+                )
+              : 'N/A'}
           </div>
         )
       },

@@ -6,7 +6,7 @@ import { Users } from '@/lib/types/users'
 export const fetchUsers = async (): Promise<Users[] | undefined> => {
   try {
     const response = await client().get<AxiosResponse<Users[]>>(
-      '/api/users?page=1&perPage=10&sortBy=created_at'
+      '/api/protected/users?page=1&perPage=10&sortBy=created_at'
     )
 
     return response.data.data

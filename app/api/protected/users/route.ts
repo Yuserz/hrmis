@@ -3,8 +3,8 @@ import {
   badRequestResponse,
   generalErrorResponse,
   successResponse
-} from '../helpers/response'
-import { paginatedData } from '../models/paginated-data'
+} from '../../helpers/response'
+import { paginatedData } from '../../helpers/paginated-data'
 import { createClient } from '@/config'
 import { NextRequest } from 'next/server'
 
