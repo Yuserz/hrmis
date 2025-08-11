@@ -4,19 +4,28 @@ import {
   generalErrorResponse,
   successResponse
 } from '../helpers/response'
+import { paginatedData } from '../models/paginated-data'
 import { createClient } from '@/config'
+import { NextRequest } from 'next/server'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient()
 
-    const { data, error } = await supabase
-      .from('users')
-      .select(
-        'id, employee_id, username, email, role, avatar, created_at, updated_at, archived_at'
-      )
-      .is('archived_at', null)
-      .overrideTypes<Users[]>()
+    const url = new URL(req.url)
+
+    const page = Number(url.searchParams.get('page') || 1)
+    const perPage = Number(url.searchParams.get('perPage') || 10)
+    const sortBy = url.searchParams.get('sortBy') || 'created_at'
+
+    const { data, error } = await paginatedData<Users>(
+      'users',
+      supabase,
+      'id, employee_id, username, email, role, avatar, created_at, updated_at, archived_at',
+      page,
+      perPage,
+      sortBy
+    )
 
     if (error) {
       return badRequestResponse({ error: error.message })

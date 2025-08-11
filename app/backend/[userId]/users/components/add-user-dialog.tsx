@@ -65,6 +65,7 @@ export function AddUserDialog(): JSX.Element {
       employee_id: '',
       role: ''
     })
+    setMessage('')
     router.refresh()
     toggleOpen?.(false)
   }

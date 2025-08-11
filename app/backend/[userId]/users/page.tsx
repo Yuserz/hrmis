@@ -1,16 +1,19 @@
 import { JSX } from 'react'
+import { UsersTable } from './components/UsersTable'
 import { AddUserDialog } from './components/add-user-dialog'
-import { UserActions } from './components/UserActions'
 import { Container } from '@/components/custom/Container'
+import { fetchUsers } from '@/services/users/users.services'
+import { Users } from '@/lib/types/users'
 
-export default function Users(): JSX.Element {
+export default async function UsersPage(): Promise<JSX.Element> {
+  const users = await fetchUsers()
+
   return (
     <Container
       title='User Managament'
       description='You can manage users here (e.g., add, edit, delete, ban)'
     >
-      <UserActions />
-      users
+      <UsersTable users={users as Users[]} />
       <AddUserDialog />
     </Container>
   )

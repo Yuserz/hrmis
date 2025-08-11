@@ -41,18 +41,18 @@ export async function POST(req: Request) {
       email_confirm: true
     })
 
-    if (error || !data.user) {
-      return unauthorizedResponse({
-        error: error?.message || 'Invalid credentials'
+    if (error) {
+      return conflictRequestResponse({
+        error: error?.message
       })
     }
 
     const { error: userError } = await supabase
       .from('users')
       .update({
-        username: body.username as string,
         employee_id: body.employee_id as string,
-        role: body.role as string
+        role: body.role as string,
+        username: body.username as string
       })
       .eq('id', data.user.id)
 
