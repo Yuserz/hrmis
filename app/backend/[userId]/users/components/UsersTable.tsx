@@ -42,7 +42,7 @@ import { format } from 'date-fns'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Users } from '@/lib/types/users'
-import { useCreateUserDialog } from '@/services/auth/state/add-user-dialog'
+import { useUserDialog } from '@/services/auth/state/user-dialog'
 import { useShallow } from 'zustand/shallow'
 import { avatarName } from '@/helpers/avatarName'
 
@@ -59,7 +59,7 @@ export function UsersTable({ users: data }: UserTableData) {
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-  const { toggleOpen } = useCreateUserDialog(
+  const { toggleOpen } = useUserDialog(
     useShallow((state) => ({ toggleOpen: state.toggleOpenDialog }))
   )
 

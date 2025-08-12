@@ -23,7 +23,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { CustomButton } from '@/components/custom/CustomButton'
 import { regularEmailRegex } from '@/helpers/reusableRegex'
-import { useCreateUserDialog } from '@/services/auth/state/add-user-dialog'
+import { useUserDialog } from '@/services/auth/state/user-dialog'
 import { UserForm } from '@/lib/types/users'
 import { useRouter } from 'next/navigation'
 import { useShallow } from 'zustand/react/shallow'
@@ -46,7 +46,7 @@ export function AddUserDialog(): JSX.Element {
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<string>('')
 
-  const { open, toggleOpen, type } = useCreateUserDialog(
+  const { open, toggleOpen, type } = useUserDialog(
     useShallow((state) => ({
       open: state.open,
       type: state.type,

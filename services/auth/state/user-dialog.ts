@@ -4,18 +4,18 @@ import { create } from 'zustand'
 
 type UserDialogType = 'add' | 'edit' | null
 
-export interface AddUserDialog {
+export interface UserDialog {
   open: boolean
   type: 'add' | 'edit' | null
   toggleOpenDialog?: (isOpen: boolean, type: UserDialogType) => void
 }
 
-const initialState: AddUserDialog = {
+const initialState: UserDialog = {
   open: false,
   type: null
 }
 
-export const useCreateUserDialog = create<AddUserDialog>()(
+export const useUserDialog = create<UserDialog>()(
   persist(
     (set) => ({
       ...initialState,
