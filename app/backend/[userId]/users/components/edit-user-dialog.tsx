@@ -27,21 +27,11 @@ import { useCreateUserDialog } from '@/services/auth/state/add-user-dialog'
 import { UserForm } from '@/lib/types/users'
 import { useRouter } from 'next/navigation'
 import { useShallow } from 'zustand/react/shallow'
-import { signUp } from '@/services/auth/auth.services'
 import { roleTypes } from '@/app/auth/sign-in/helpers/constants'
-import { ImageUpload } from '@/components/custom/ImageUpload'
 
-interface AddUserDialog extends UserForm {
-  password: string
-  confirmPassword: string
-  avatar: File[]
-}
+type EditUserDialog = UserForm
 
-interface UserFormData extends UserForm {
-  avatar: File[]
-}
-
-export function AddUserDialog(): JSX.Element {
+export function EditserDialog(): JSX.Element {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<string>('')
@@ -60,14 +50,13 @@ export function AddUserDialog(): JSX.Element {
     formState: { errors },
     setError,
     control
-  } = useForm<AddUserDialog>()
+  } = useForm<EditUserDialog>()
 
   const resetVariable = (): void => {
     reset({
       email: '',
       password: '',
       username: '',
-      confirmPassword: '',
       employee_id: '',
       role: ''
     })
@@ -76,26 +65,10 @@ export function AddUserDialog(): JSX.Element {
     toggleOpen?.(false)
   }
 
-  const onSubmit = async (data: AddUserDialog): Promise<void> => {
-    const { email, username, role, employee_id, avatar } = data
+  const onSubmit = async (data: EditUserDialog): Promise<void> => {
+    const { email, username, role, employee_id } = data
     startTransition(async () => {
       try {
-        const { password, confirmPassword } = data
-        if (password !== confirmPassword) {
-          setError('confirmPassword', {
-            message: "password doesn't matched"
-          })
-          return
-        }
-
-        await signUp({
-          email,
-          username: username?.toLowerCase() as string,
-          password,
-          role,
-          employee_id,
-          avatar: avatar || []
-        } as UserFormData)
         resetVariable()
       } catch (error) {
         setMessage(error as string)
@@ -107,7 +80,7 @@ export function AddUserDialog(): JSX.Element {
     <Dialog open={open} onOpenChange={() => toggleOpen?.(false)}>
       <DialogContent className='sm:max-w-[40rem]'>
         <DialogHeader>
-          <DialogTitle>Add New User</DialogTitle>
+          <DialogTitle>Edit New User</DialogTitle>
         </DialogHeader>
 
         <div className='grid grid-cols-2 gap-2'>
@@ -132,26 +105,6 @@ export function AddUserDialog(): JSX.Element {
             })}
             hasError={!!errors.email}
             errorMessage={errors.email?.message}
-          />
-        </div>
-        <div className='grid grid-cols-2 gap-2'>
-          <Input
-            title='Password'
-            type='password'
-            {...register('password', {
-              required: 'Field is required.'
-            })}
-            hasError={!!errors.password}
-            errorMessage={errors.password?.message}
-          />
-          <Input
-            title='Confirm Password'
-            type='password'
-            {...register('confirmPassword', {
-              required: 'Field is required.'
-            })}
-            hasError={!!errors.confirmPassword}
-            errorMessage={errors.confirmPassword?.message}
           />
         </div>
 
@@ -185,25 +138,6 @@ export function AddUserDialog(): JSX.Element {
           </div>
 
           <Input title='Employee ID' isOptional {...register('employee_id')} />
-        </div>
-
-        <div className='space-y-2'>
-          <Controller
-            name='avatar'
-            control={control}
-            render={({ field: { onChange, value } }) => (
-              <ImageUpload
-                title='Image'
-                pendingFiles={value as File[]}
-                isLoading={isPending}
-                acceptedImageCount={1}
-                setPendingFiles={(value) => onChange(value)}
-              />
-            )}
-          />
-          {!!errors.avatar && (
-            <h1 className='text-sm text-red-500'>{errors.avatar.message}</h1>
-          )}
         </div>
         {!!message && <p className='text-sm text-red-500'>{message}</p>}
         <DialogFooter>

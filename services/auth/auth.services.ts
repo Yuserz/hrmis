@@ -1,9 +1,13 @@
 import axios from 'axios'
 import { AxiosResponse } from 'axios'
-import { client } from '@/app/api/axios-client'
+import { AxiosService } from '@/app/api/axios-client'
 import { toast } from 'sonner'
 import { UserForm } from '@/lib/types/users'
 import { isEmpty } from 'lodash'
+
+interface UserFormData extends UserForm {
+  avatar: File[]
+}
 
 export const signIn = async (
   username: string,
@@ -34,17 +38,33 @@ export const signUp = async ({
   username,
   password,
   employee_id,
-  role
-}: UserForm): Promise<UserForm | undefined> => {
+  role,
+  avatar
+}: UserFormData): Promise<UserForm | undefined> => {
   try {
-    const response = await client().post<AxiosResponse<UserForm>>(
-      '/api/users/sign-up',
+    const formData = new FormData()
+    formData.append('avatar', avatar[0])
+    formData.append('email', email as string)
+
+    let responseImage: AxiosResponse | null = null
+
+    if (avatar.length > 0) {
+      responseImage = await AxiosService.post('/api/avatar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+    }
+
+    const response = await AxiosService.post<AxiosResponse<UserForm>>(
+      '/api/protected/users/sign-up',
       {
         email,
         username,
         password,
         employee_id: isEmpty(employee_id) ? null : employee_id,
-        role
+        role,
+        avatar: responseImage?.data.url ?? null
       }
     )
 

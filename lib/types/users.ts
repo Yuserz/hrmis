@@ -4,7 +4,7 @@ export type Users = Database['public']['Tables']['users']['Row']
 
 export type UserForm = Omit<
   Users,
-  'created_at' | 'updated_at' | 'archived_at'
+  'created_at' | 'updated_at' | 'archived_at' | 'avatar'
 > & {
   password?: string
 }

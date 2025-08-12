@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       .select('email')
       .or(`username.eq.${body.username}`)
       .limit(1)
-      .maybeSingle()
+      .single()
 
     if (foundUserError) {
       return unauthorizedResponse({ error: foundUserError?.message })

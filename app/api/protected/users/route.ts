@@ -12,11 +12,11 @@ export async function GET(req: NextRequest) {
   try {
     const supabase = await createClient()
 
-    const url = new URL(req.url)
+    const url = req.nextUrl.searchParams
 
-    const page = Number(url.searchParams.get('page') || 1)
-    const perPage = Number(url.searchParams.get('perPage') || 10)
-    const sortBy = url.searchParams.get('sortBy') || 'created_at'
+    const page = Number(url.get('page') || 1)
+    const perPage = Number(url.get('perPage') || 10)
+    const sortBy = url.get('sortBy') || 'created_at'
 
     const { data, error } = await paginatedData<Users>(
       'users',
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
     return successResponse({
       message: 'Successfully fetched users',
-      data
+      data: data || []
     })
   } catch (error) {
     const newError = error as Error

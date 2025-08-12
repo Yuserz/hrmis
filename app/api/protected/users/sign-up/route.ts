@@ -9,6 +9,13 @@ import {
 import { createClient } from '@/config'
 import { isEmpty } from 'lodash'
 
+/*
+ * TODO
+ * adding handler for errors when saving images
+ * when the users table error remove image
+ * when creating authentication remove image
+ * */
+
 export async function POST(req: Request) {
   try {
     const body = await req.json()
@@ -58,14 +65,15 @@ export async function POST(req: Request) {
         email: body.email as string,
         employee_id: body.employee_id as string,
         role: body.role as string,
-        username: body.username as string
+        username: body.username as string,
+        avatar: body.avatar as string
       },
       { onConflict: 'id' }
     )
 
     if (userError) {
       await supabase.auth.admin.deleteUser(data.user.id)
-      return badRequestResponse({ error: userError.message })
+      return badRequestResponse({ error: userError.message || '' })
     }
 
     return successResponse({

@@ -397,11 +397,18 @@ CREATE POLICY update_employee_own_account ON public.users
     USING (id = auth.uid() AND archived_at IS NULL OR role = 'admin')
     WITH CHECK (id = auth.uid() OR role = 'admin');
 
+
+CREATE POLICY employe_policies ON public.users
+    FOR ALL
+    TO authenticated
+    USING (role = 'employee' AND archived_at IS NULL)
+    WITH CHECK (role = 'employee');
+
 CREATE POLICY staff_manage_users ON public.users
     FOR ALL
     TO authenticated
-    USING (role = 'staff' AND archived_at IS NULL)
-    WITH CHECK (role = 'staff');
+    USING (id = auth.uid() AND role = 'staff' AND archived_at IS NULL)
+    WITH CHECK (id = auth.uid() AND role = 'staff');
 
 -- Biometrics table policies
 CREATE POLICY admin_all_biometrics ON public.biometrics

@@ -1,12 +1,14 @@
-import { client } from '@/app/api/axios-client'
+import { AxiosService } from '@/app/api/axios-client'
 import { AxiosResponse } from 'axios'
 import axios from 'axios'
 import { Users } from '@/lib/types/users'
 
-export const fetchUsers = async (): Promise<Users[] | undefined> => {
+export const fetchUsers = async (
+  params: string
+): Promise<Users[] | undefined> => {
   try {
-    const response = await client().get<AxiosResponse<Users[]>>(
-      '/api/protected/users?page=1&perPage=10&sortBy=created_at'
+    const response = await AxiosService.get<AxiosResponse<Users[]>>(
+      `/api/protected/users${params}`
     )
 
     return response.data.data
