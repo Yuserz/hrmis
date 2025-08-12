@@ -2,23 +2,28 @@ import { persist } from 'zustand/middleware'
 import { createJSONStorage } from 'zustand/middleware'
 import { create } from 'zustand'
 
+type UserDialogType = 'add' | 'edit' | null
+
 export interface AddUserDialog {
   open: boolean
-  toggleOpenDialog?: (isOpen: boolean) => void
+  type: 'add' | 'edit' | null
+  toggleOpenDialog?: (isOpen: boolean, type: UserDialogType) => void
 }
 
 const initialState: AddUserDialog = {
-  open: false
+  open: false,
+  type: null
 }
 
 export const useCreateUserDialog = create<AddUserDialog>()(
   persist(
     (set) => ({
       ...initialState,
-      toggleOpenDialog: (isOpen: boolean) => {
+      toggleOpenDialog: (isOpen: boolean, type: UserDialogType) => {
         set((state) => ({
           ...state,
-          open: isOpen
+          open: isOpen,
+          type
         }))
       }
     }),

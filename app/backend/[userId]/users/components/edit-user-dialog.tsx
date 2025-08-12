@@ -22,26 +22,18 @@ import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { CustomButton } from '@/components/custom/CustomButton'
-import { regularEmailRegex } from '@/helpers/reusableRegex'
 import { useCreateUserDialog } from '@/services/auth/state/add-user-dialog'
 import { UserForm } from '@/lib/types/users'
 import { useRouter } from 'next/navigation'
 import { useShallow } from 'zustand/react/shallow'
-import { signUp } from '@/services/auth/auth.services'
 import { roleTypes } from '@/app/auth/sign-in/helpers/constants'
 import { ImageUpload } from '@/components/custom/ImageUpload'
 
-interface AddUserDialog extends UserForm {
-  password: string
-  confirmPassword: string
+interface EditUserDialog extends UserForm {
   avatar: File[]
 }
 
-interface UserFormData extends UserForm {
-  avatar: File[]
-}
-
-export function AddUserDialog(): JSX.Element {
+export function EditUserDialog(): JSX.Element {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<string>('')
@@ -59,16 +51,13 @@ export function AddUserDialog(): JSX.Element {
     register,
     reset,
     formState: { errors },
-    setError,
     control
-  } = useForm<AddUserDialog>()
+  } = useForm<EditUserDialog>()
 
   const resetVariable = (): void => {
     reset({
       email: '',
-      password: '',
       username: '',
-      confirmPassword: '',
       employee_id: '',
       role: ''
     })
@@ -77,26 +66,10 @@ export function AddUserDialog(): JSX.Element {
     toggleOpen?.(false, null)
   }
 
-  const onSubmit = async (data: AddUserDialog): Promise<void> => {
-    const { email, username, role, employee_id, avatar } = data
+  const onSubmit = async (data: EditUserDialog): Promise<void> => {
+    const { username, role, employee_id, avatar } = data
     startTransition(async () => {
       try {
-        const { password, confirmPassword } = data
-        if (password !== confirmPassword) {
-          setError('confirmPassword', {
-            message: "password doesn't matched"
-          })
-          return
-        }
-
-        await signUp({
-          email,
-          username: username?.toLowerCase() as string,
-          password,
-          role,
-          employee_id,
-          avatar: avatar || []
-        } as UserFormData)
         resetVariable()
       } catch (error) {
         setMessage(error as string)
@@ -104,59 +77,23 @@ export function AddUserDialog(): JSX.Element {
     })
   }
 
-  const isOpenDialog = open && type === 'add'
+  const isOpenDialog = open && type === 'edit'
 
   return (
     <Dialog open={isOpenDialog} onOpenChange={() => toggleOpen?.(false, null)}>
       <DialogContent className='sm:max-w-[40rem]'>
         <DialogHeader>
-          <DialogTitle>Add New User</DialogTitle>
+          <DialogTitle>Edit New User</DialogTitle>
         </DialogHeader>
 
-        <div className='grid grid-cols-2 gap-2'>
-          <Input
-            title='Email'
-            {...register('email', {
-              required: 'Field is required.',
-
-              pattern: {
-                value: regularEmailRegex,
-                message: 'invalid email address'
-              }
-            })}
-            hasError={!!errors.email}
-            errorMessage={errors.email?.message}
-          />
-
-          <Input
-            title='Username'
-            {...register('username', {
-              required: 'Field is required.'
-            })}
-            hasError={!!errors.email}
-            errorMessage={errors.email?.message}
-          />
-        </div>
-        <div className='grid grid-cols-2 gap-2'>
-          <Input
-            title='Password'
-            type='password'
-            {...register('password', {
-              required: 'Field is required.'
-            })}
-            hasError={!!errors.password}
-            errorMessage={errors.password?.message}
-          />
-          <Input
-            title='Confirm Password'
-            type='password'
-            {...register('confirmPassword', {
-              required: 'Field is required.'
-            })}
-            hasError={!!errors.confirmPassword}
-            errorMessage={errors.confirmPassword?.message}
-          />
-        </div>
+        <Input
+          title='Username'
+          {...register('username', {
+            required: 'Field is required.'
+          })}
+          hasError={!!errors.email}
+          errorMessage={errors.email?.message}
+        />
 
         <div className='grid grid-cols-2 gap-2'>
           <div className='space-y-2'>
@@ -227,7 +164,7 @@ export function AddUserDialog(): JSX.Element {
               disabled={isPending}
               isLoading={isPending}
             >
-              Create
+              Update
             </CustomButton>
           </DialogClose>
         </DialogFooter>

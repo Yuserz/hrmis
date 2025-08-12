@@ -149,7 +149,7 @@ export function UsersTable({ users: data }: UserTableData) {
                 <File />
                 View PDS
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => toggleOpen?.(true, 'edit')}>
                 <Pencil />
                 Edit
               </DropdownMenuItem>
@@ -224,7 +224,7 @@ export function UsersTable({ users: data }: UserTableData) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button onClick={() => toggleOpen?.(true)}>
+          <Button onClick={() => toggleOpen?.(true, 'add')}>
             Add User <Plus className='w-5 h-5' />
           </Button>
         </div>

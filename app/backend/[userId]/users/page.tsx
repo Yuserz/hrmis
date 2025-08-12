@@ -1,5 +1,6 @@
 import { JSX } from 'react'
 import { UsersTable } from './components/UsersTable'
+import { EditUserDialog } from './components/edit-user-dialog'
 import { AddUserDialog } from './components/add-user-dialog'
 import { Container } from '@/components/custom/Container'
 import { fetchUsers } from '@/services/users/users.services'
@@ -14,7 +15,10 @@ export default async function UsersPage(): Promise<JSX.Element> {
       description='You can manage users here (e.g., add, edit, delete, ban)'
     >
       <UsersTable users={(users as Users[]) || []} />
+
+      {/*User Dialogs*/}
       <AddUserDialog />
+      <EditUserDialog />
     </Container>
   )
 }
