@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { AxiosResponse } from 'axios'
-import { AxiosService } from '@/app/api/axios-client'
+import { axiosService } from '@/app/api/axios-client'
 import { toast } from 'sonner'
 import { UserForm } from '@/lib/types/users'
 import { isEmpty } from 'lodash'
@@ -49,14 +49,14 @@ export const signUp = async ({
     let responseImage: AxiosResponse | null = null
 
     if (avatar.length > 0) {
-      responseImage = await AxiosService.post('/api/avatar', formData, {
+      responseImage = await axiosService.post('/api/avatar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       })
     }
 
-    const response = await AxiosService.post<AxiosResponse<UserForm>>(
+    const response = await axiosService.post<AxiosResponse<UserForm>>(
       '/api/protected/users/sign-up',
       {
         email,

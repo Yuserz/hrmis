@@ -6,14 +6,14 @@ const isServer = typeof window === 'undefined'
 
 const logInterceptor = async (req: InternalAxiosRequestConfig) => {
   if (isServer) {
-    console.log('[AXIOS] [SERVER] ', req.url)
+    console.info('[AXIOS] [SERVER] ', req.url)
   } else {
-    console.log('[AXIOS] [CLIENT] ', req.url)
+    console.info('[AXIOS] [CLIENT] ', req.url)
   }
   return req
 }
 
-const cookiesInterceptor = async (req: any) => {
+const cookiesInterceptor = async (req: InternalAxiosRequestConfig) => {
   if (isServer) {
     const { cookies } = await import('next/headers')
     const cookiesString = await cookies()
@@ -28,9 +28,9 @@ const cookiesInterceptor = async (req: any) => {
   return req
 }
 
-export const AxiosService = axios.create({
+export const axiosService = axios.create({
   baseURL: baseUrl
 })
 
-AxiosService.interceptors.request.use(logInterceptor)
-AxiosService.interceptors.request.use(cookiesInterceptor)
+axiosService.interceptors.request.use(logInterceptor)
+axiosService.interceptors.request.use(cookiesInterceptor)

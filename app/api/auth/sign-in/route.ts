@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     const { data: userData, error: userError } = await supabase
       .from('users')
-      .select('role, email, employee_id, avatar')
+      .select('role, email, employee_id')
       .eq('id', data.user?.id)
       .single()
 

@@ -6,6 +6,7 @@ import {
   validationErrorNextResponse,
   conflictRequestResponse
 } from '@/app/api/helpers/response'
+import { getImagePath, removeImageViaPath } from '@/app/api/helpers/image/image'
 import { createClient } from '@/config'
 import { isEmpty } from 'lodash'
 
@@ -33,10 +34,12 @@ export async function POST(req: Request) {
       .maybeSingle()
 
     if (foundUserError) {
+      removeImageViaPath(supabase, getImagePath(body.avatar as string))
       return unauthorizedResponse({ error: foundUserError?.message })
     }
 
     if (foundUser) {
+      removeImageViaPath(supabase, getImagePath(body.avatar as string))
       return conflictRequestResponse({
         error: 'username already exist please try again.'
       })
@@ -54,6 +57,7 @@ export async function POST(req: Request) {
     })
 
     if (error) {
+      removeImageViaPath(supabase, getImagePath(body.avatar as string))
       return conflictRequestResponse({
         error: error?.message
       })
@@ -72,6 +76,7 @@ export async function POST(req: Request) {
     )
 
     if (userError) {
+      removeImageViaPath(supabase, getImagePath(body.avatar as string))
       await supabase.auth.admin.deleteUser(data.user.id)
       return badRequestResponse({ error: userError.message || '' })
     }

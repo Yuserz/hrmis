@@ -8,7 +8,6 @@ export interface UseAuth extends UserForm {
 }
 
 const initialState: UserForm = {
-  avatar: '',
   username: '',
   email: '',
   employee_id: '',

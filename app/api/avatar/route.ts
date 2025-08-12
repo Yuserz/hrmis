@@ -10,11 +10,15 @@ export async function POST(req: Request) {
     const body = await req.formData()
     const supabase = await createClient()
 
-    const { imageUrls } = await uploadImage(
+    const { imageUrls, error } = await uploadImage(
       [body.get('avatar')] as File[],
       supabase,
       body.get('email') as string
     )
+
+    if (error) {
+      return error
+    }
 
     return successResponse({
       message: 'Successfully upload image',

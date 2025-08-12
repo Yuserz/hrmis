@@ -1,13 +1,15 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import { conflictRequestResponse, generalErrorResponse } from '../response'
+import { NextResponse } from 'next/server'
 
 export const uploadImage = async (
   images: File[],
   supabase: SupabaseClient,
   id: string,
   bucket = 'avatars'
-): Promise<{ imageUrls: string[] }> => {
+): Promise<{ imageUrls: string[]; error: NextResponse }> => {
   const imageUrls: string[] = []
+  let error: NextResponse | null = null
 
   if (images && images.length > 0) {
     for (const image of images) {
@@ -21,13 +23,13 @@ export const uploadImage = async (
         })
 
       if (uploadError?.message === 'The resource already exists') {
-        throw conflictRequestResponse({ error: uploadError?.message })
+        error = conflictRequestResponse({ error: uploadError?.message })
       }
 
-      console.log(uploadError)
-
       if (uploadError) {
-        throw generalErrorResponse({ error: uploadError.message })
+        error = generalErrorResponse({
+          error: uploadError.message
+        }) as NextResponse
       }
 
       // Get public URL for the uploaded image
@@ -40,27 +42,28 @@ export const uploadImage = async (
   }
 
   return {
-    imageUrls
+    imageUrls,
+    error: error as NextResponse
   }
 }
 
-export const removeImageUponEdit = async (
+export const removeImageViaPath = async (
   supabase: SupabaseClient,
   path: string,
   bucket = 'avatars'
-): Promise<void> => {
+): Promise<void | NextResponse> => {
   try {
     const { error: uploadError } = await supabase.storage
       .from(bucket)
       .remove([path])
 
     if (uploadError) {
-      throw generalErrorResponse({
+      return generalErrorResponse({
         error: `Image remove failed: ${uploadError.message}`
-      })
+      }) as NextResponse
     }
   } catch (error) {
-    throw error
+    return generalErrorResponse({ error: error }) as NextResponse
   }
 }
 
@@ -69,7 +72,7 @@ export const removeImage = async (
   supabase: SupabaseClient,
   id: string,
   bucket = 'avatars'
-): Promise<void> => {
+): Promise<void | NextResponse> => {
   if (images && images.length > 0) {
     for (const image of images) {
       const fileName = image?.name as string
@@ -80,10 +83,15 @@ export const removeImage = async (
         .remove([storageName])
 
       if (uploadError) {
-        throw generalErrorResponse({
+        return generalErrorResponse({
           error: `Image remove failed: ${uploadError.message}`
-        })
+        }) as NextResponse
       }
     }
   }
+}
+
+export const getImagePath = (path: string): string => {
+  const formatPath = path.split('/')
+  return `${formatPath[8]}/${formatPath[9]}`
 }
