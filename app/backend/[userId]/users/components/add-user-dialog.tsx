@@ -27,7 +27,7 @@ import { useUserDialog } from '@/services/auth/state/user-dialog'
 import { UserForm } from '@/lib/types/users'
 import { useRouter } from 'next/navigation'
 import { useShallow } from 'zustand/react/shallow'
-import { signUp } from '@/services/auth/auth.services'
+import { signUp } from '@/services/users/users.services'
 import { roleTypes } from '@/app/auth/sign-in/helpers/constants'
 import { ImageUpload } from '@/components/custom/ImageUpload'
 

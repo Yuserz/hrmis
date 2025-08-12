@@ -19,6 +19,11 @@ export async function POST(req: Request) {
       return validationErrorNextResponse()
     }
 
+    //remove old avatar
+    if (body.oldAvatar) {
+      removeImageViaPath(supabase, getImagePath(body.oldAvatar as string))
+    }
+
     const { data: foundUser, error: foundUserError } = await supabase
       .from('users')
       .select('email')
@@ -38,45 +43,23 @@ export async function POST(req: Request) {
       })
     }
 
-    const { error, data } = await supabase.auth.admin.createUser({
-      email: body.email as string,
-      password: body.password as string,
-      email_confirm: true,
-      user_metadata: {
-        username: body.username,
-        employee_id: body.employee_id,
-        role: body.role
-      }
-    })
-
-    if (error) {
-      removeImageViaPath(supabase, getImagePath(body.avatar as string))
-      return conflictRequestResponse({
-        error: error?.message
-      })
-    }
-
-    const { error: userError } = await supabase.from('users').upsert(
-      {
-        id: data.user.id,
-        email: body.email as string,
+    const { error: userError } = await supabase
+      .from('users')
+      .update({
         employee_id: body.employee_id as string,
         role: body.role as string,
         username: body.username as string,
         avatar: body.avatar as string
-      },
-      { onConflict: 'id' }
-    )
+      })
+      .eq('id', body.userId as string)
 
     if (userError) {
       removeImageViaPath(supabase, getImagePath(body.avatar as string))
-      await supabase.auth.admin.deleteUser(data.user.id)
       return badRequestResponse({ error: userError.message || '' })
     }
 
     return successResponse({
-      message: 'Sign up successfully',
-      userId: data.user.id
+      message: 'Successfully updated user details.'
     })
   } catch (error) {
     const newError = error as Error

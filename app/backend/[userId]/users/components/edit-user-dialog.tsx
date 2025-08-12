@@ -67,7 +67,7 @@ export function EditUserDialog(): JSX.Element {
   }
 
   const onSubmit = async (data: EditUserDialog): Promise<void> => {
-    const { username, role, employee_id, avatar } = data
+    const { username, role, employee_id, avatar, email } = data
     startTransition(async () => {
       try {
         resetVariable()
@@ -85,6 +85,16 @@ export function EditUserDialog(): JSX.Element {
         <DialogHeader>
           <DialogTitle>Edit New User</DialogTitle>
         </DialogHeader>
+
+        <Input
+          title='Email'
+          className='sr-only'
+          {...register('email', {
+            required: 'Field is required.'
+          })}
+          hasError={!!errors.email}
+          errorMessage={errors.email?.message}
+        />
 
         <Input
           title='Username'
