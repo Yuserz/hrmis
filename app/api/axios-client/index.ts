@@ -1,75 +1,36 @@
-import axios from 'axios'
-import { createClient } from '@/config'
-import { cookies } from 'next/headers'
+import axios, { InternalAxiosRequestConfig } from 'axios'
 
-export const client = () => {
-  const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_APP_URL,
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL
 
-  api.interceptors.request.use(
-    async (config) => {
-      const supabase = await createClient()
-      const { data } = await supabase.auth.refreshSession()
-      const { session } = data
+const isServer = typeof window === 'undefined'
 
-      if (session) {
-        config.headers['Authorization'] = `Bearer ${session.access_token}`
-      }
-      return config
-    },
-    (error) => Promise.reject(error)
-  )
-
-  const createAxiosResponseInterceptor = () => {
-    const interceptor = api.interceptors.response.use(
-      (response) => response,
-      async (error) => {
-        const cookie = await cookies()
-        const supabase = await createClient()
-        const { data } = await supabase.auth.refreshSession()
-        const { session } = data
-
-        if (error?.response?.status !== 401) {
-          return Promise.reject(error)
-        }
-
-        if (error?.response?.status === 401 && session) {
-          try {
-            api.interceptors.response.eject(interceptor)
-
-            error.response.config.headers.Authorization = `Bearer ${session.access_token}`
-          } catch (error) {
-            cookie.getAll().forEach((cookieStore) => {
-              cookie.delete(cookieStore.name)
-            })
-
-            return Promise.reject(error)
-          } finally {
-            createAxiosResponseInterceptor()
-          }
-        } else {
-          return Promise.reject(error)
-        }
-      }
-    )
-    return interceptor
+const logInterceptor = async (req: InternalAxiosRequestConfig) => {
+  if (isServer) {
+    console.info('[AXIOS] [SERVER] ', req.url)
+  } else {
+    console.info('[AXIOS] [CLIENT] ', req.url)
   }
-
-  createAxiosResponseInterceptor()
-
-  const get = api.get
-  const post = api.post
-  const put = api.put
-  const del = api.delete
-
-  return { get, post, put, delete: del }
+  return req
 }
 
-export const fetchData = async (url: string) => {
-  const response = await client().get(url)
-  return response.data.data
+const cookiesInterceptor = async (req: InternalAxiosRequestConfig) => {
+  if (isServer) {
+    const { cookies } = await import('next/headers')
+    const cookiesString = await cookies()
+
+    cookiesString
+      .getAll()
+      .map((item) => `${item.name}=${item.value}`)
+      .join('; ')
+
+    req.headers.cookie = cookiesString
+  }
+  return req
 }
+
+export const axiosService = axios.create({
+  baseURL: baseUrl
+})
+
+axiosService.interceptors.request.use(logInterceptor)
+axiosService.interceptors.request.use(cookiesInterceptor)

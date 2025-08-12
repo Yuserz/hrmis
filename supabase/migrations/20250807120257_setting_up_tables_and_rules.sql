@@ -220,30 +220,6 @@ CREATE TRIGGER update_awards_updated_at
     BEFORE UPDATE ON public.awards
     FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- Function to handle new user signup
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO public.users (id, employee_id, email, role)
-    VALUES (
-        NEW.id,
-        null,
-        NEW.email,
-        'employee'
-    )
-    ON CONFLICT (email) DO UPDATE
-    SET employee_id = EXCLUDED.employee_id,
-        role = EXCLUDED.role,
-        updated_at = CURRENT_TIMESTAMP;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger for new user signup
-CREATE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
-
 -- Function to calculate leave credits based on attendance
 CREATE OR REPLACE FUNCTION public.calculate_monthly_leave_credits()
 RETURNS TRIGGER AS $$
@@ -418,14 +394,21 @@ CREATE POLICY employee_own_account ON public.users
 CREATE POLICY update_employee_own_account ON public.users
     FOR UPDATE
     TO authenticated
-    USING (id = auth.uid() AND archived_at IS NULL)
-    WITH CHECK (id = auth.uid());
+    USING (id = auth.uid() AND archived_at IS NULL OR role = 'admin')
+    WITH CHECK (id = auth.uid() OR role = 'admin');
+
+
+CREATE POLICY employe_policies ON public.users
+    FOR ALL
+    TO authenticated
+    USING (role = 'employee' AND archived_at IS NULL)
+    WITH CHECK (role = 'employee');
 
 CREATE POLICY staff_manage_users ON public.users
     FOR ALL
     TO authenticated
-    USING (role = 'staff' AND archived_at IS NULL)
-    WITH CHECK (role = 'staff');
+    USING (id = auth.uid() AND role = 'staff' AND archived_at IS NULL)
+    WITH CHECK (id = auth.uid() AND role = 'staff');
 
 -- Biometrics table policies
 CREATE POLICY admin_all_biometrics ON public.biometrics

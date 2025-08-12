@@ -1,6 +1,7 @@
-import { NextRequest } from 'next/server'
-import { updateSession } from '@/config/updateSession'
+import { stackMiddlewares } from '@/middlewares/stackMiddlewares'
+import { authMiddlware } from './middlewares/auth-middlware/auth-middleware'
+import { protectedRoutesMiddlware } from './middlewares/proctedRoutesMiddlware'
 
-export async function middleware(req: NextRequest) {
-  return await updateSession(req)
-}
+const middlewares = [authMiddlware, protectedRoutesMiddlware] // Order matters!
+
+export default stackMiddlewares(middlewares)

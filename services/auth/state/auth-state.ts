@@ -8,7 +8,7 @@ export interface UseAuth extends UserForm {
 }
 
 const initialState: UserForm = {
-  avatar: '',
+  username: '',
   email: '',
   employee_id: '',
   id: '',
@@ -29,7 +29,7 @@ export const useAuth = create<UseAuth>()(
       }
     }),
     {
-      name: 'use-business-details',
+      name: 'use-auth',
       storage: createJSONStorage(() => sessionStorage)
     }
   )
