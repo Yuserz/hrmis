@@ -114,6 +114,15 @@ export function UsersTable({ users: data }: UserTableData) {
         )
       },
       {
+        accessorKey: 'archived_at',
+        header: 'Status',
+        cell: ({ row }) => (
+          <Badge className='lowercase' variant='outline'>
+            {row.getValue('archived_at') ? 'Revoked' : 'active'}
+          </Badge>
+        )
+      },
+      {
         accessorKey: 'created_at',
         header: 'Created At',
         cell: ({ row }) => (

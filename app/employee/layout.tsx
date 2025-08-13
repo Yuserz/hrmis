@@ -4,6 +4,7 @@ import {
   SidebarProvider,
   SidebarTrigger
 } from '@/components/ui/sidebar'
+import { AuthProvider } from '@/context/AuthProvider'
 import { Breadcrumbs } from '@/components/custom/Breadcrumbs'
 import { ReactNode } from 'react'
 
@@ -19,7 +20,9 @@ export default async function Layout({ children }: { children: ReactNode }) {
             <Breadcrumbs />
           </div>
         </header>
-        <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>{children}</div>
+        <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
+          <AuthProvider>{children}</AuthProvider>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )

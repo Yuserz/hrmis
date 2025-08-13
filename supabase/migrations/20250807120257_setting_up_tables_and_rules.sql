@@ -378,7 +378,7 @@ ALTER TABLE public.awards ENABLE ROW LEVEL SECURITY;
 CREATE POLICY admin_all_users ON public.users
     FOR ALL
     TO authenticated
-    USING (role = 'admin' AND archived_at IS NULL)
+    USING (role = 'admin')
     WITH CHECK (role = 'admin');
 
 CREATE POLICY insert_users ON public.users
@@ -391,7 +391,7 @@ CREATE POLICY employee_own_account ON public.users
     TO authenticated
     USING (id = auth.uid() AND archived_at IS NULL);
 
-CREATE POLICY update_employee_own_account ON public.users
+CREATE POLICY update_employee_account ON public.users
     FOR UPDATE
     TO authenticated
     USING (id = auth.uid() AND archived_at IS NULL OR role = 'admin')
@@ -401,14 +401,14 @@ CREATE POLICY update_employee_own_account ON public.users
 CREATE POLICY employe_policies ON public.users
     FOR ALL
     TO authenticated
-    USING (role = 'employee' AND archived_at IS NULL)
+    USING (role = 'employee')
     WITH CHECK (role = 'employee');
 
 CREATE POLICY staff_manage_users ON public.users
     FOR ALL
     TO authenticated
-    USING (id = auth.uid() AND role = 'staff' AND archived_at IS NULL)
-    WITH CHECK (id = auth.uid() AND role = 'staff');
+    USING (id = auth.uid() OR role = 'staff')
+    WITH CHECK (id = auth.uid() OR role = 'staff');
 
 -- Biometrics table policies
 CREATE POLICY admin_all_biometrics ON public.biometrics

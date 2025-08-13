@@ -15,6 +15,33 @@ interface UpdateUserInfo
   oldAvatar: string
 }
 
+export const revokeOrReinstate = async (
+  archivedAt: Date,
+  banUntil: string,
+  id: string
+): Promise<void> => {
+  try {
+    await axiosService.post<AxiosResponse<UserForm>>(
+      `/api/protected/users/${id}`,
+      {
+        archivedAt,
+        banUntil
+      }
+    )
+
+    toast('Successfully', {
+      description: 'Successfully updated user'
+    })
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
+      toast.error('ERROR!', {
+        description: e.response?.data.error
+      })
+      throw e.response?.data.error
+    }
+  }
+}
+
 export const updateUserInfo = async ({
   id,
   username,

@@ -39,6 +39,44 @@ export async function GET(req: NextRequest) {
   }
 }
 
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const body = await req.json()
+    const { id } = await params
+    const supabase = await createClient()
+
+    if (isEmpty(id)) {
+      return badRequestResponse()
+    }
+
+    const { error } = await supabase.auth.admin.updateUserById(id, {
+      ban_duration: body.banUntil
+    })
+
+    if (error) {
+      return generalErrorResponse()
+    }
+
+    const { error: userError } = await supabase.from('users').update({
+      archived_at: body.archivedAt
+    })
+
+    if (userError) {
+      return generalErrorResponse()
+    }
+
+    return successResponse({
+      message: 'Successfuly revoked user'
+    })
+  } catch (error) {
+    const newError = error as Error
+    return generalErrorResponse({ error: newError.message })
+  }
+}
+
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

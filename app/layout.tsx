@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { AuthProvider } from '@/context/AuthProvider'
 import { Toaster } from 'sonner'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
@@ -29,7 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        {children}
         <Toaster />
       </body>
     </html>
