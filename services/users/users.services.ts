@@ -48,7 +48,7 @@ export const updateUserInfo = async ({
         employee_id: isEmpty(employee_id) ? null : employee_id,
         role,
         avatar: responseImage?.data.url ?? avatar,
-        oldAvatar
+        oldAvatar: oldAvatar ?? null
       }
     )
 

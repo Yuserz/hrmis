@@ -46,7 +46,7 @@ export async function PUT(
   try {
     const body = await req.json()
     const { id: userId } = await params
-    const isEqualAvatar = body.oldAvatar !== body.avatar
+    const isEqualAvatar = body.oldAvatar !== body.avatar && !!body.oldAvatar
     const supabase = await createClient()
 
     if (isEmpty(body)) {
@@ -80,8 +80,8 @@ export async function PUT(
     }
 
     if (userError) {
-      if (typeof body.avatar === 'string') {
-        removeImageViaPath(supabase, getImagePath(body.avatar as string))
+      if (typeof body.oldAvatar === 'string') {
+        removeImageViaPath(supabase, getImagePath(body.oldAvatar as string))
       }
       return badRequestResponse({ error: userError.message || '' })
     }
