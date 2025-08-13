@@ -136,7 +136,7 @@ export function UsersTable({ users: data }: UserTableData) {
         id: 'actions',
         header: 'Actions',
         enableHiding: false,
-        cell: () => (
+        cell: ({ row }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant='ghost' className='h-8 w-8 p-0'>
@@ -149,7 +149,9 @@ export function UsersTable({ users: data }: UserTableData) {
                 <File />
                 View PDS
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => toggleOpen?.(true, 'edit')}>
+              <DropdownMenuItem
+                onClick={() => toggleOpen?.(true, 'edit', { ...row.original })}
+              >
                 <Pencil />
                 Edit
               </DropdownMenuItem>

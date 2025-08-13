@@ -3,7 +3,7 @@ import { toast } from 'sonner'
 import { AxiosResponse } from 'axios'
 import { axiosService } from '@/app/api/axios-client'
 import { UserForm, Users } from '@/lib/types/users'
-import { isEmpty } from 'lodash'
+import { isArray, isEmpty } from 'lodash'
 
 interface UserFormData extends UserForm {
   avatar: File[]
@@ -31,7 +31,7 @@ export const updateUserInfo = async ({
 
     let responseImage: AxiosResponse | null = null
 
-    if (avatar.length > 0) {
+    if (isArray(avatar)) {
       responseImage = await axiosService.post('/api/avatar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
@@ -39,15 +39,15 @@ export const updateUserInfo = async ({
       })
     }
 
-    await axiosService.post<AxiosResponse<UserForm>>(
-      '/api/protected/users/edit',
+    await axiosService.put<AxiosResponse<UserForm>>(
+      `/api/protected/users/${id}`,
       {
         userId: id,
         email,
         username,
         employee_id: isEmpty(employee_id) ? null : employee_id,
         role,
-        avatar: responseImage?.data.url ?? null,
+        avatar: responseImage?.data.url ?? avatar,
         oldAvatar
       }
     )

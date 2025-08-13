@@ -28,7 +28,7 @@ setup-supabase: init-log
 	@if [ -s supabase_output.txt ]; then \
 		echo "NEXT_PUBLIC_DESTINATION=/auth/sign-in" >> .env; \
 		echo "NEXT_PUBLIC_APP_URL=http://localhost:3000" >> .env; \
-		echo "NEXT_IMAGE_PUBLIC_URL=http://127.0.0.1:54324/storage/**" >> .env; \
+		echo "NEXT_IMAGE_PUBLIC_URL=http://127.0.0.1:54321/storage/**" >> .env; \
 		echo "NEXT_PUBLIC_SUPABASE_URL=$$(grep 'API URL' supabase_output.txt | awk -F': ' '{print $$2}' | tr -d '\r')" >> .env; \
 		echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$$(grep 'anon key' supabase_output.txt | awk -F': ' '{print $$2}' | tr -d '\r')" >> .env; \
 		echo "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY=$$(grep 'service_role key' supabase_output.txt | awk -F': ' '{print $$2}' | tr -d '\r')" >> .env; \

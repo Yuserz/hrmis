@@ -74,7 +74,7 @@ export function AddUserDialog(): JSX.Element {
     })
     setMessage('')
     router.refresh()
-    toggleOpen?.(false, null)
+    toggleOpen?.(false, null, null)
   }
 
   const onSubmit = async (data: AddUserDialog): Promise<void> => {
@@ -107,7 +107,10 @@ export function AddUserDialog(): JSX.Element {
   const isOpenDialog = open && type === 'add'
 
   return (
-    <Dialog open={isOpenDialog} onOpenChange={() => toggleOpen?.(false, null)}>
+    <Dialog
+      open={isOpenDialog}
+      onOpenChange={() => toggleOpen?.(false, null, null)}
+    >
       <DialogContent className='sm:max-w-[40rem]'>
         <DialogHeader>
           <DialogTitle>Add New User</DialogTitle>
