@@ -19,7 +19,8 @@ import {
   MoreHorizontal,
   Pencil,
   File,
-  Trash
+  Trash,
+  Mail
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -42,6 +43,7 @@ import { format } from 'date-fns'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Users } from '@/lib/types/users'
+import { useAuth } from '@/services/auth/state/auth-state'
 import { useUserDialog } from '@/services/auth/state/user-dialog'
 import { useShallow } from 'zustand/shallow'
 import { avatarName } from '@/helpers/avatarName'
@@ -62,6 +64,8 @@ export function UsersTable({ users: data }: UserTableData) {
   const { toggleOpen } = useUserDialog(
     useShallow((state) => ({ toggleOpen: state.toggleOpenDialog }))
   )
+
+  const state = useAuth()
 
   const columns: ColumnDef<Users>[] = React.useMemo(
     () => [
@@ -145,20 +149,30 @@ export function UsersTable({ users: data }: UserTableData) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              <DropdownMenuItem>
-                <File />
-                View PDS
+              {row.original.role !== 'admin' && (
+                <DropdownMenuItem>
+                  <File />
+                  View PDS
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                onClick={() => toggleOpen?.(true, 'edit', { ...row.original })}
+              >
+                <Mail />
+                Edit email & password
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => toggleOpen?.(true, 'edit', { ...row.original })}
               >
                 <Pencil />
-                Edit
+                Edit info
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Trash />
-                Revoke
-              </DropdownMenuItem>
+              {state.id !== row.original.id && (
+                <DropdownMenuItem>
+                  <Trash />
+                  Revoke
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )
