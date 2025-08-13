@@ -10,13 +10,6 @@ import { getImagePath, removeImageViaPath } from '@/app/api/helpers/image/image'
 import { createClient } from '@/config'
 import { isEmpty } from 'lodash'
 
-/*
- * TODO
- * adding handler for errors when saving images
- * when the users table error remove image
- * when creating authentication remove image
- * */
-
 export async function POST(req: Request) {
   try {
     const body = await req.json()

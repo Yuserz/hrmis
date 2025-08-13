@@ -2,6 +2,26 @@ import { SupabaseClient } from '@supabase/supabase-js'
 import { conflictRequestResponse, generalErrorResponse } from '../response'
 import { NextResponse } from 'next/server'
 
+export const removeImageViaPath = async (
+  supabase: SupabaseClient,
+  path: string,
+  bucket = 'avatars'
+): Promise<void | NextResponse> => {
+  try {
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .remove([path])
+
+    if (uploadError) {
+      return generalErrorResponse({
+        error: `Image remove failed: ${uploadError.message}`
+      }) as NextResponse
+    }
+  } catch (error) {
+    return generalErrorResponse({ error: error }) as NextResponse
+  }
+}
+
 export const uploadImage = async (
   images: File[],
   supabase: SupabaseClient,
@@ -47,26 +67,6 @@ export const uploadImage = async (
   }
 }
 
-export const removeImageViaPath = async (
-  supabase: SupabaseClient,
-  path: string,
-  bucket = 'avatars'
-): Promise<void | NextResponse> => {
-  try {
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .remove([path])
-
-    if (uploadError) {
-      return generalErrorResponse({
-        error: `Image remove failed: ${uploadError.message}`
-      }) as NextResponse
-    }
-  } catch (error) {
-    return generalErrorResponse({ error: error }) as NextResponse
-  }
-}
-
 export const removeImage = async (
   images: File[],
   supabase: SupabaseClient,
@@ -93,5 +93,5 @@ export const removeImage = async (
 
 export const getImagePath = (path: string): string => {
   const formatPath = path.split('/')
-  return `${formatPath[8]}/${formatPath[9]}`
+  return decodeURIComponent(`${formatPath[8]}/${formatPath[9]}`)
 }

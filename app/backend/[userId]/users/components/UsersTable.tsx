@@ -19,7 +19,8 @@ import {
   MoreHorizontal,
   Pencil,
   File,
-  Trash
+  Trash,
+  Mail
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -42,7 +43,8 @@ import { format } from 'date-fns'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Users } from '@/lib/types/users'
-import { useCreateUserDialog } from '@/services/auth/state/add-user-dialog'
+import { useAuth } from '@/services/auth/state/auth-state'
+import { useUserDialog } from '@/services/auth/state/user-dialog'
 import { useShallow } from 'zustand/shallow'
 import { avatarName } from '@/helpers/avatarName'
 
@@ -59,9 +61,11 @@ export function UsersTable({ users: data }: UserTableData) {
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-  const { toggleOpen } = useCreateUserDialog(
+  const { toggleOpen } = useUserDialog(
     useShallow((state) => ({ toggleOpen: state.toggleOpenDialog }))
   )
+
+  const state = useAuth()
 
   const columns: ColumnDef<Users>[] = React.useMemo(
     () => [
@@ -136,7 +140,7 @@ export function UsersTable({ users: data }: UserTableData) {
         id: 'actions',
         header: 'Actions',
         enableHiding: false,
-        cell: () => (
+        cell: ({ row }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant='ghost' className='h-8 w-8 p-0'>
@@ -145,24 +149,36 @@ export function UsersTable({ users: data }: UserTableData) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              <DropdownMenuItem>
-                <File />
-                View PDS
+              {row.original.role !== 'admin' && (
+                <DropdownMenuItem>
+                  <File />
+                  View PDS
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                onClick={() => toggleOpen?.(true, 'edit', { ...row.original })}
+              >
+                <Mail />
+                Edit email & password
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => toggleOpen?.(true, 'edit')}>
+              <DropdownMenuItem
+                onClick={() => toggleOpen?.(true, 'edit', { ...row.original })}
+              >
                 <Pencil />
-                Edit
+                Edit info
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Trash />
-                Revoke
-              </DropdownMenuItem>
+              {state.id !== row.original.id && (
+                <DropdownMenuItem>
+                  <Trash />
+                  Revoke
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )
       }
     ],
-    []
+    [toggleOpen, state]
   )
 
   const table = useReactTable({
@@ -224,7 +240,7 @@ export function UsersTable({ users: data }: UserTableData) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button onClick={() => toggleOpen?.(true, 'add')}>
+          <Button onClick={() => toggleOpen?.(true, 'add', null)}>
             Add User <Plus className='w-5 h-5' />
           </Button>
         </div>

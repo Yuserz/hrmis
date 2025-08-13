@@ -23,11 +23,11 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { CustomButton } from '@/components/custom/CustomButton'
 import { regularEmailRegex } from '@/helpers/reusableRegex'
-import { useCreateUserDialog } from '@/services/auth/state/add-user-dialog'
+import { useUserDialog } from '@/services/auth/state/user-dialog'
 import { UserForm } from '@/lib/types/users'
 import { useRouter } from 'next/navigation'
 import { useShallow } from 'zustand/react/shallow'
-import { signUp } from '@/services/auth/auth.services'
+import { signUp } from '@/services/users/users.services'
 import { roleTypes } from '@/app/auth/sign-in/helpers/constants'
 import { ImageUpload } from '@/components/custom/ImageUpload'
 
@@ -46,7 +46,7 @@ export function AddUserDialog(): JSX.Element {
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<string>('')
 
-  const { open, toggleOpen, type } = useCreateUserDialog(
+  const { open, toggleOpen, type } = useUserDialog(
     useShallow((state) => ({
       open: state.open,
       type: state.type,
@@ -74,7 +74,7 @@ export function AddUserDialog(): JSX.Element {
     })
     setMessage('')
     router.refresh()
-    toggleOpen?.(false, null)
+    toggleOpen?.(false, null, null)
   }
 
   const onSubmit = async (data: AddUserDialog): Promise<void> => {
@@ -107,7 +107,10 @@ export function AddUserDialog(): JSX.Element {
   const isOpenDialog = open && type === 'add'
 
   return (
-    <Dialog open={isOpenDialog} onOpenChange={() => toggleOpen?.(false, null)}>
+    <Dialog
+      open={isOpenDialog}
+      onOpenChange={() => toggleOpen?.(false, null, null)}
+    >
       <DialogContent className='sm:max-w-[40rem]'>
         <DialogHeader>
           <DialogTitle>Add New User</DialogTitle>

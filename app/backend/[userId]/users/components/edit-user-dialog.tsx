@@ -1,6 +1,6 @@
 'use client'
 
-import { JSX, useState, useTransition } from 'react'
+import { JSX, useState, useTransition, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -22,15 +22,19 @@ import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { CustomButton } from '@/components/custom/CustomButton'
-import { useCreateUserDialog } from '@/services/auth/state/add-user-dialog'
+import { useUserDialog } from '@/services/auth/state/user-dialog'
 import { UserForm } from '@/lib/types/users'
 import { useRouter } from 'next/navigation'
+import { updateUserInfo } from '@/services/users/users.services'
 import { useShallow } from 'zustand/react/shallow'
 import { roleTypes } from '@/app/auth/sign-in/helpers/constants'
 import { ImageUpload } from '@/components/custom/ImageUpload'
+import { isEqual } from 'lodash'
+import { toast } from 'sonner'
 
 interface EditUserDialog extends UserForm {
-  avatar: File[]
+  avatar: File[] | string
+  oldAvatar: string
 }
 
 export function EditUserDialog(): JSX.Element {
@@ -38,13 +42,22 @@ export function EditUserDialog(): JSX.Element {
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<string>('')
 
-  const { open, toggleOpen, type } = useCreateUserDialog(
+  const { open, toggleOpen, type, data } = useUserDialog(
     useShallow((state) => ({
       open: state.open,
       type: state.type,
-      toggleOpen: state.toggleOpenDialog
+      toggleOpen: state.toggleOpenDialog,
+      data: state.data
     }))
   )
+
+  const oldData = {
+    avatar: data?.avatar,
+    employee_id: data?.employee_id,
+    oldAvatar: data?.avatar,
+    role: data?.role,
+    username: data?.username
+  }
 
   const {
     handleSubmit,
@@ -55,21 +68,31 @@ export function EditUserDialog(): JSX.Element {
   } = useForm<EditUserDialog>()
 
   const resetVariable = (): void => {
-    reset({
-      email: '',
-      username: '',
-      employee_id: '',
-      role: ''
-    })
     setMessage('')
     router.refresh()
-    toggleOpen?.(false, null)
+    toggleOpen?.(false, null, null)
   }
 
-  const onSubmit = async (data: EditUserDialog): Promise<void> => {
-    const { username, role, employee_id, avatar } = data
+  const onSubmit = async (editData: EditUserDialog): Promise<void> => {
+    const { avatar } = editData
+
     startTransition(async () => {
       try {
+        if (isEqual(editData, oldData)) {
+          toast.info('Info', {
+            description: 'No changes in data.'
+          })
+
+          toggleOpen?.(false, null, null)
+          return
+        }
+
+        await updateUserInfo({
+          ...editData,
+          email: data?.email as string,
+          avatar: avatar as File[],
+          id: data?.id as string
+        })
         resetVariable()
       } catch (error) {
         setMessage(error as string)
@@ -77,10 +100,25 @@ export function EditUserDialog(): JSX.Element {
     })
   }
 
+  useEffect(() => {
+    if (!!data) {
+      reset({
+        avatar: data.avatar as string,
+        username: data.username,
+        role: data.role,
+        employee_id: data.employee_id,
+        oldAvatar: data.avatar as string
+      })
+    }
+  }, [data, reset])
+
   const isOpenDialog = open && type === 'edit'
 
   return (
-    <Dialog open={isOpenDialog} onOpenChange={() => toggleOpen?.(false, null)}>
+    <Dialog
+      open={isOpenDialog}
+      onOpenChange={() => toggleOpen?.(false, null, null)}
+    >
       <DialogContent className='sm:max-w-[40rem]'>
         <DialogHeader>
           <DialogTitle>Edit New User</DialogTitle>
@@ -134,6 +172,7 @@ export function EditUserDialog(): JSX.Element {
             render={({ field: { onChange, value } }) => (
               <ImageUpload
                 title='Image'
+                filePreview={typeof value === 'string' ? value : undefined}
                 pendingFiles={value as File[]}
                 isLoading={isPending}
                 acceptedImageCount={1}
