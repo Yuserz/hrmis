@@ -164,7 +164,7 @@ export function UsersTable({ users: data }: UserTableData) {
         )
       }
     ],
-    []
+    [toggleOpen]
   )
 
   const table = useReactTable({
@@ -226,7 +226,7 @@ export function UsersTable({ users: data }: UserTableData) {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button onClick={() => toggleOpen?.(true, 'add')}>
+          <Button onClick={() => toggleOpen?.(true, 'add', null)}>
             Add User <Plus className='w-5 h-5' />
           </Button>
         </div>

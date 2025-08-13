@@ -1,7 +1,6 @@
 import { Users } from '@/lib/types/users'
 import {
   successResponse,
-  unauthorizedResponse,
   generalErrorResponse,
   badRequestResponse,
   validationErrorNextResponse,
@@ -59,41 +58,26 @@ export async function PUT(
       removeImageViaPath(supabase, getImagePath(body.oldAvatar as string))
     }
 
-    const { data: foundUser, error: foundUserError } = await supabase
-      .from('users')
-      .select('email')
-      .or(`username.eq.${body.username}`)
-      .limit(1)
-      .maybeSingle()
-
-    if (foundUserError) {
-      if (typeof body.avatar === 'string') {
-        removeImageViaPath(supabase, getImagePath(body.avatar as string))
-      }
-
-      return unauthorizedResponse({ error: foundUserError?.message })
-    }
-
-    if (foundUser) {
-      if (typeof body.avatar === 'string') {
-        removeImageViaPath(supabase, getImagePath(body.avatar as string))
-      }
-
-      return conflictRequestResponse({
-        error: 'username already exist please try again.'
-      })
-    }
-
     const newData = {
       username: body.username,
       role: body.role,
-      avatar: body.avatar
+      avatar: body.avatar,
+      employee_id: body.employee_id
     }
 
     const { error: userError } = await supabase
       .from('users')
       .update(newData)
       .eq('id', userId)
+
+    if (
+      userError?.message ===
+      'duplicate key value violates unique constraint "users_username_key"'
+    ) {
+      return conflictRequestResponse({
+        error: 'username already exist, please try again.'
+      })
+    }
 
     if (userError) {
       if (typeof body.avatar === 'string') {

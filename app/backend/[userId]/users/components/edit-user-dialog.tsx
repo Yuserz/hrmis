@@ -29,6 +29,8 @@ import { updateUserInfo } from '@/services/users/users.services'
 import { useShallow } from 'zustand/react/shallow'
 import { roleTypes } from '@/app/auth/sign-in/helpers/constants'
 import { ImageUpload } from '@/components/custom/ImageUpload'
+import { isEqual } from 'lodash'
+import { toast } from 'sonner'
 
 interface EditUserDialog extends UserForm {
   avatar: File[] | string
@@ -72,15 +74,25 @@ export function EditUserDialog(): JSX.Element {
   }
 
   const onSubmit = async (editData: EditUserDialog): Promise<void> => {
-    const { username, role, employee_id, avatar, email, oldAvatar } = editData
+    const { avatar } = editData
+
     startTransition(async () => {
       try {
-        console.log(editData, oldData)
-        // await updateUserInfo({
-        //   ...editData,
-        //   avatar: avatar as File[],
-        //   id: data?.id as string
-        // })
+        if (isEqual(editData, oldData)) {
+          toast.info('Info', {
+            description: 'No changes in data.'
+          })
+
+          toggleOpen?.(false, null, null)
+          return
+        }
+
+        await updateUserInfo({
+          ...editData,
+          email: data?.email as string,
+          avatar: avatar as File[],
+          id: data?.id as string
+        })
         resetVariable()
       } catch (error) {
         setMessage(error as string)
@@ -98,7 +110,7 @@ export function EditUserDialog(): JSX.Element {
         oldAvatar: data.avatar as string
       })
     }
-  }, [data])
+  }, [data, reset])
 
   const isOpenDialog = open && type === 'edit'
 

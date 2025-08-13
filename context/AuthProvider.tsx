@@ -10,9 +10,7 @@ import {
 import { Spinner } from '@/components/custom/Spinner'
 import { createClient } from '@/config/client'
 import { User } from '@supabase/supabase-js'
-import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/services/auth/state/auth-state'
-import { toast } from 'sonner'
 import { useShallow } from 'zustand/shallow'
 import { UserForm } from '@/lib/types/users'
 
@@ -38,9 +36,6 @@ export const AuthProvider = ({ children }: AuthProviderType) => {
   )
 
   const supabase = createClient()
-  const params = useSearchParams()
-  const getParam = new URLSearchParams(params)
-  const requiredForm = getParam.get('required-form')
 
   useEffect(() => {
     const {
@@ -84,13 +79,7 @@ export const AuthProvider = ({ children }: AuthProviderType) => {
     if (mount) {
       loadSession()
     }
-
-    if (Boolean(requiredForm)) {
-      toast.info('Info', {
-        description: "You're required to fill the missing info"
-      })
-    }
-  }, [supabase, mount, setMount, requiredForm])
+  }, [supabase, mount, setMount])
 
   if (!user?.userRole) {
     return (
