@@ -178,7 +178,7 @@ export function UsersTable({ users: data }: UserTableData) {
         )
       }
     ],
-    [toggleOpen]
+    [toggleOpen, state]
   )
 
   const table = useReactTable({
