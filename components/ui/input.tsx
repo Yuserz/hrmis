@@ -22,7 +22,7 @@ function Input({
     <div className='grid w-full'>
       <Label className='text-sm font-medium mb-1.5'>
         {title}
-        {!isOptional ? '*' : ' (optional)'}
+        {!isOptional ? (title ? '*' : '') : ' (optional)'}
       </Label>
       <input
         type={type}

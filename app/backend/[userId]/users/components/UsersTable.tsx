@@ -114,6 +114,15 @@ export function UsersTable({ users: data }: UserTableData) {
         )
       },
       {
+        accessorKey: 'archived_at',
+        header: 'Status',
+        cell: ({ row }) => (
+          <Badge className='lowercase' variant='outline'>
+            {row.getValue('archived_at') ? 'Revoked' : 'active'}
+          </Badge>
+        )
+      },
+      {
         accessorKey: 'created_at',
         header: 'Created At',
         cell: ({ row }) => (
@@ -168,9 +177,17 @@ export function UsersTable({ users: data }: UserTableData) {
                 Edit info
               </DropdownMenuItem>
               {state.id !== row.original.id && (
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    toggleOpen?.(
+                      true,
+                      row.original.archived_at ? 'reinstate' : 'revoked',
+                      { ...row.original }
+                    )
+                  }
+                >
                   <Trash />
-                  Revoke
+                  {row.original.archived_at ? 'Reinstate' : 'Revoke'}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>

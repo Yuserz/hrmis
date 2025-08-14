@@ -21,9 +21,19 @@ export async function POST(req: NextRequest) {
     const { data: foundUser, error: foundUserError } = await supabase
       .from('users')
       .select('email')
+      .is('archived_at', null)
       .or(`username.eq.${body.username}`)
       .limit(1)
       .single()
+
+    if (
+      foundUserError?.message ===
+      'JSON object requested, multiple (or no) rows returned'
+    ) {
+      return unauthorizedResponse({
+        error: 'Something went wrong to your account, please contact support.'
+      })
+    }
 
     if (foundUserError) {
       return unauthorizedResponse({ error: foundUserError?.message })
