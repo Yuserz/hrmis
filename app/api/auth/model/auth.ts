@@ -1,22 +1,14 @@
-import { NextRequest } from 'next/server'
-import {
-  successResponse,
-  unauthorizedResponse,
-  generalErrorResponse,
-  badRequestResponse
-} from '@/app/api/helpers/response'
-import { SignIn, UserForm } from '@/lib/types/users'
 import { createClient } from '@/config'
-import { isEmpty } from 'lodash'
+import {
+  generalErrorResponse,
+  successResponse,
+  unauthorizedResponse
+} from '../../helpers/response'
+import { SignIn, UserForm } from '@/lib/types/users'
 
-export async function POST(req: NextRequest) {
+export const signIn = async (body: SignIn) => {
   try {
-    const body = (await req.json()) as SignIn
     const supabase = await createClient()
-
-    if (isEmpty(body)) {
-      return badRequestResponse()
-    }
 
     const { data: foundUser, error: foundUserError } = await supabase
       .from('users')
@@ -68,6 +60,23 @@ export async function POST(req: NextRequest) {
       message: 'Signed in successfully',
       data: { ...userData, id: data.user?.id } as UserForm
     })
+  } catch (error) {
+    const newError = error as Error
+    return generalErrorResponse({ error: newError.message })
+  }
+}
+
+export const signOut = async () => {
+  try {
+    const supabase = await createClient()
+
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      throw generalErrorResponse({ error: error.message })
+    }
+
+    return successResponse({ message: 'Signout successfully' })
   } catch (error) {
     const newError = error as Error
     return generalErrorResponse({ error: newError.message })

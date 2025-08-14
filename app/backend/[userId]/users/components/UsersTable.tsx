@@ -19,8 +19,7 @@ import {
   MoreHorizontal,
   Pencil,
   File,
-  Trash,
-  Mail
+  Trash
 } from 'lucide-react'
 import {
   DropdownMenu,
@@ -164,12 +163,6 @@ export function UsersTable({ users: data }: UserTableData) {
                   View PDS
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem
-                onClick={() => toggleOpen?.(true, 'edit', { ...row.original })}
-              >
-                <Mail />
-                Edit email & password
-              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => toggleOpen?.(true, 'edit', { ...row.original })}
               >

@@ -56,7 +56,8 @@ export function EditUserDialog(): JSX.Element {
     employee_id: data?.employee_id,
     oldAvatar: data?.avatar,
     role: data?.role,
-    username: data?.username
+    username: data?.username,
+    email: data?.email
   }
 
   const {
@@ -107,7 +108,8 @@ export function EditUserDialog(): JSX.Element {
         username: data.username,
         role: data.role,
         employee_id: data.employee_id,
-        oldAvatar: data.avatar as string
+        oldAvatar: data.avatar as string,
+        email: data.email as string
       })
     }
   }, [data, reset])
@@ -129,8 +131,8 @@ export function EditUserDialog(): JSX.Element {
           {...register('username', {
             required: 'Field is required.'
           })}
-          hasError={!!errors.email}
-          errorMessage={errors.email?.message}
+          hasError={!!errors.username}
+          errorMessage={errors.username?.message}
         />
 
         <div className='grid grid-cols-2 gap-2'>

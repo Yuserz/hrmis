@@ -1,31 +1,9 @@
-import {
-  successResponse,
-  generalErrorResponse
-} from '@/app/api/helpers/response'
-import { uploadImage } from '../helpers/image/image'
-import { createClient } from '@/config'
+import { uploadAvatar } from './model/avatar'
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.formData()
-    const supabase = await createClient()
+  const body = await req.formData()
 
-    const { imageUrls, error } = await uploadImage(
-      [body.get('avatar')] as File[],
-      supabase,
-      body.get('email') as string
-    )
-
-    if (error) {
-      return error
-    }
-
-    return successResponse({
-      message: 'Successfully upload image',
-      url: imageUrls[0]
-    })
-  } catch (error) {
-    const newError = error as Error
-    return generalErrorResponse({ error: newError.message })
+  if (body.get('type') === 'upload-avatar') {
+    return uploadAvatar(body)
   }
 }

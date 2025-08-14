@@ -15,22 +15,58 @@ interface UpdateUserInfo
   oldAvatar: string
 }
 
+export const updatePassword = async (password: string) => {
+  try {
+    const response = await axiosService.put('/api/protected/users', {
+      password,
+      type: 'update-password'
+    })
+
+    toast('Successfully', {
+      description: response.data.message
+    })
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
+      toast.error('ERROR!', {
+        description: e.response?.data.error
+      })
+      throw e.response?.data.error
+    }
+  }
+}
+
+export const verifyEmail = async (email: string) => {
+  try {
+    const response = await axiosService.post('/api/protected/users', {
+      email,
+      type: 'verify-email'
+    })
+
+    return response.data.path
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
+      toast.error('ERROR!', {
+        description: e.response?.data.error
+      })
+      throw e.response?.data.error
+    }
+  }
+}
+
 export const revokeOrReinstate = async (
   archivedAt: Date | null,
   banUntil: string,
   id: string
 ): Promise<void> => {
   try {
-    await axiosService.post<AxiosResponse<UserForm>>(
-      `/api/protected/users/${id}`,
-      {
-        archivedAt,
-        banUntil
-      }
-    )
+    const response = await axiosService.put(`/api/protected/users/${id}`, {
+      archivedAt,
+      banUntil,
+      type: 'banned-until'
+    })
 
     toast('Successfully', {
-      description: 'Successfully updated user'
+      description: response.data.message
     })
   } catch (e) {
     if (axios.isAxiosError(e)) {
@@ -55,6 +91,7 @@ export const updateUserInfo = async ({
     const formData = new FormData()
     formData.append('avatar', avatar[0])
     formData.append('email', email as string)
+    formData.append('type', 'upload-avatar')
 
     let responseImage: AxiosResponse | null = null
 
@@ -75,7 +112,8 @@ export const updateUserInfo = async ({
         employee_id: isEmpty(employee_id) ? null : employee_id,
         role,
         avatar: responseImage?.data.url ?? avatar,
-        oldAvatar: oldAvatar ?? null
+        oldAvatar: oldAvatar ?? null,
+        type: 'update-user-info'
       }
     )
 
@@ -104,6 +142,7 @@ export const signUp = async ({
     const formData = new FormData()
     formData.append('avatar', avatar[0])
     formData.append('email', email as string)
+    formData.append('type', 'upload-avatar')
 
     let responseImage: AxiosResponse | null = null
 
@@ -116,14 +155,15 @@ export const signUp = async ({
     }
 
     const response = await axiosService.post<AxiosResponse<UserForm>>(
-      '/api/protected/users/sign-up',
+      '/api/protected/users',
       {
         email,
         username,
         password,
         employee_id: isEmpty(employee_id) ? null : employee_id,
         role,
-        avatar: responseImage?.data.url ?? null
+        avatar: responseImage?.data.url ?? null,
+        type: 'sign-up'
       }
     )
 

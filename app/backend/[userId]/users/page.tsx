@@ -1,11 +1,13 @@
 import { JSX } from 'react'
-import { RevokedReinstateDialog } from './components/RevokedReinstateDialog'
+import { fetchUsers } from '@/services/users/users.services'
+import { Users } from '@/lib/types/users'
+import { RevokedReinstateDialog } from './components/revoke-reinstate-dialog'
 import { UsersTable } from './components/UsersTable'
 import { EditUserDialog } from './components/edit-user-dialog'
 import { AddUserDialog } from './components/add-user-dialog'
 import { Container } from '@/components/custom/Container'
-import { fetchUsers } from '@/services/users/users.services'
-import { Users } from '@/lib/types/users'
+import { UpdatePassword } from './components/update-password-dialog'
+import { VerifyEmail } from './components/verify-email-dialog'
 
 export default async function UsersPage(): Promise<JSX.Element> {
   const users = await fetchUsers('?page=1&perPage=10&sortBy=created_at')
@@ -21,6 +23,8 @@ export default async function UsersPage(): Promise<JSX.Element> {
       <AddUserDialog />
       <EditUserDialog />
       <RevokedReinstateDialog />
+      <UpdatePassword />
+      <VerifyEmail />
     </Container>
   )
 }
