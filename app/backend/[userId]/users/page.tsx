@@ -1,4 +1,5 @@
 import { JSX } from 'react'
+import { RevokedReinstateDialog } from './components/RevokedReinstateDialog'
 import { UsersTable } from './components/UsersTable'
 import { EditUserDialog } from './components/edit-user-dialog'
 import { AddUserDialog } from './components/add-user-dialog'
@@ -19,6 +20,7 @@ export default async function UsersPage(): Promise<JSX.Element> {
       {/*User Dialogs*/}
       <AddUserDialog />
       <EditUserDialog />
+      <RevokedReinstateDialog />
     </Container>
   )
 }

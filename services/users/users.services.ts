@@ -16,7 +16,7 @@ interface UpdateUserInfo
 }
 
 export const revokeOrReinstate = async (
-  archivedAt: Date,
+  archivedAt: Date | null,
   banUntil: string,
   id: string
 ): Promise<void> => {

@@ -57,15 +57,18 @@ export async function POST(
     })
 
     if (error) {
-      return generalErrorResponse()
+      return generalErrorResponse({ error: error.message })
     }
 
-    const { error: userError } = await supabase.from('users').update({
-      archived_at: body.archivedAt
-    })
+    const { error: userError } = await supabase
+      .from('users')
+      .update({
+        archived_at: body.archivedAt
+      })
+      .eq('id', id)
 
     if (userError) {
-      return generalErrorResponse()
+      return generalErrorResponse({ error: userError.message })
     }
 
     return successResponse({

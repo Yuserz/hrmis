@@ -3,16 +3,17 @@ import { createJSONStorage } from 'zustand/middleware'
 import { create } from 'zustand'
 import { Users } from '@/lib/types/users'
 
-type UserDialogType = 'add' | 'edit' | null
-type UserData = Pick<
+type UserDialogType = 'add' | 'edit' | 'revoked' | 'reinstate' | null
+
+export type UserData = Pick<
   Users,
   'username' | 'role' | 'employee_id' | 'avatar' | 'email' | 'id'
 >
 
 export interface UserDialog {
   open: boolean
-  type: 'add' | 'edit' | null
-  data: UserData | null
+  type: UserDialogType
+  data: Partial<UserData> | null
   toggleOpenDialog?: (
     isOpen: boolean,
     type: UserDialogType,

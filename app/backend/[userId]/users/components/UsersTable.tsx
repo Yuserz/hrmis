@@ -177,9 +177,17 @@ export function UsersTable({ users: data }: UserTableData) {
                 Edit info
               </DropdownMenuItem>
               {state.id !== row.original.id && (
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    toggleOpen?.(
+                      true,
+                      row.original.archived_at ? 'reinstate' : 'revoked',
+                      { ...row.original }
+                    )
+                  }
+                >
                   <Trash />
-                  Revoke
+                  {row.original.archived_at ? 'Reinstate' : 'Revoke'}
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
