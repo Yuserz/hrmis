@@ -157,7 +157,7 @@ export function UsersTable({ users: data }: UserTableData) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              {row.original.role !== 'admin' && (
+              {['employee'].includes(row.original.role) && (
                 <DropdownMenuItem>
                   <File />
                   View PDS

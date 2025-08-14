@@ -10,7 +10,7 @@ import { UpdatePassword } from './components/update-password-dialog'
 import { VerifyEmail } from './components/verify-email-dialog'
 
 export default async function UsersPage(): Promise<JSX.Element> {
-  const users = await fetchUsers('?page=1&perPage=10&sortBy=created_at')
+  const users = await fetchUsers('?page=1&perPage=2&sortBy=created_at')
 
   return (
     <Container
