@@ -9,8 +9,13 @@ import { Container } from '@/components/custom/Container'
 import { UpdatePassword } from './components/update-password-dialog'
 import { VerifyEmail } from './components/verify-email-dialog'
 
-export default async function UsersPage(): Promise<JSX.Element> {
-  const users = await fetchUsers('?page=1&perPage=2&sortBy=created_at')
+export default async function UsersPage({
+  searchParams
+}: {
+  searchParams: Promise<{ page: string }>
+}): Promise<JSX.Element> {
+  const { page } = await searchParams
+  const users = await fetchUsers(`?page=${page}&perPage=10&sortBy=created_at`)
 
   return (
     <Container

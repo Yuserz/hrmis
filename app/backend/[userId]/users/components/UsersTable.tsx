@@ -46,6 +46,7 @@ import { useAuth } from '@/services/auth/state/auth-state'
 import { useUserDialog } from '@/services/auth/state/user-dialog'
 import { useShallow } from 'zustand/shallow'
 import { avatarName } from '@/helpers/avatarName'
+import { Pagination } from '@/components/custom/Pagination'
 
 interface UserTableData {
   users: Users[]
@@ -305,26 +306,7 @@ export function UsersTable({ users: data }: UserTableData) {
           </TableBody>
         </Table>
       </div>
-      <div className='flex items-center justify-end space-x-2 py-4'>
-        <div className='space-x-2'>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <Pagination />
     </div>
   )
 }
