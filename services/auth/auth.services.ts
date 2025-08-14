@@ -8,13 +8,11 @@ export const signIn = async (
   password: string
 ): Promise<UserForm | undefined> => {
   try {
-    const response = await axios.post<AxiosResponse<UserForm>>(
-      '/api/auth/sign-in',
-      {
-        username,
-        password
-      }
-    )
+    const response = await axios.post<AxiosResponse<UserForm>>('/api/auth', {
+      username,
+      password,
+      type: 'sign-in'
+    })
 
     return response.data.data
   } catch (e) {
@@ -29,7 +27,9 @@ export const signIn = async (
 
 export const signOut = async (): Promise<void> => {
   try {
-    await axios.post('/api/auth/sign-out')
+    await axios.post('/api/auth', {
+      type: 'sign-out'
+    })
   } catch (e) {
     if (axios.isAxiosError(e)) {
       toast.error('ERROR!', {

@@ -2,11 +2,14 @@ import { Users } from '@/lib/types/users'
 import {
   badRequestResponse,
   generalErrorResponse,
-  successResponse
+  successResponse,
+  validationErrorNextResponse
 } from '../../helpers/response'
 import { paginatedData } from '../../helpers/paginated-data'
 import { createClient } from '@/config'
 import { NextRequest } from 'next/server'
+import { isEmpty } from 'lodash'
+import { signUp, updatePassword, verifyEmail } from '../model/user'
 
 export async function GET(req: NextRequest) {
   try {
@@ -38,5 +41,33 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     const newError = error as Error
     return generalErrorResponse({ error: newError.message })
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.json()
+
+  if (isEmpty(body)) {
+    return validationErrorNextResponse()
+  }
+
+  if (body.type === 'sign-up') {
+    return signUp(body)
+  }
+
+  if (body.type === 'verify-email') {
+    return verifyEmail(body.email, req.headers.get('referer') as string)
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  const body = await req.json()
+
+  if (isEmpty(body)) {
+    return validationErrorNextResponse()
+  }
+
+  if (body.type === 'update-password') {
+    return updatePassword(body.password)
   }
 }

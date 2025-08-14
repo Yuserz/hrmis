@@ -3,7 +3,13 @@ import { createJSONStorage } from 'zustand/middleware'
 import { create } from 'zustand'
 import { Users } from '@/lib/types/users'
 
-type UserDialogType = 'add' | 'edit' | 'revoked' | 'reinstate' | null
+type UserDialogType =
+  | 'add'
+  | 'edit'
+  | 'revoked'
+  | 'reinstate'
+  | 'verify-email'
+  | null
 
 export type UserData = Pick<
   Users,
