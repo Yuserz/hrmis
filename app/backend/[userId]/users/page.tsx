@@ -12,17 +12,26 @@ import { VerifyEmail } from './components/verify-email-dialog'
 export default async function UsersPage({
   searchParams
 }: {
-  searchParams: Promise<{ page: string }>
+  searchParams: Promise<{ page: string; search: string }>
 }): Promise<JSX.Element> {
-  const { page } = await searchParams
-  const users = await fetchUsers(`?page=${page}&perPage=10&sortBy=created_at`)
+  const { page, search } = await searchParams
+  const response = await fetchUsers(
+    `?page=${page}&perPage=2&search=${search}&sortBy=created_at`
+  )
 
   return (
     <Container
       title='User Managament'
       description='You can manage users here (e.g., add, edit, delete, ban)'
     >
-      <UsersTable users={(users as Users[]) || []} />
+      <UsersTable
+        {...{
+          users: (response?.users as Users[]) || [],
+          totalPages: response?.totalPages as number,
+          currentPage: response?.currentPage as number,
+          count: response?.count as number
+        }}
+      />
 
       {/*User Dialogs*/}
       <AddUserDialog />
