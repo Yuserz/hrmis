@@ -4,9 +4,14 @@ import { AxiosResponse } from 'axios'
 import { axiosService } from '@/app/api/axios-client'
 import { UserForm, Users } from '@/lib/types/users'
 import { isArray, isEmpty } from 'lodash'
+import { Pagination } from '@/lib/types/pagination'
 
 interface UserFormData extends UserForm {
   avatar: File[]
+}
+
+interface UsersResponse extends Pagination {
+  users: Users[]
 }
 
 interface UpdateUserInfo
@@ -184,11 +189,9 @@ export const signUp = async ({
 
 export const fetchUsers = async (
   params: string
-): Promise<Users[] | undefined> => {
+): Promise<UsersResponse | undefined> => {
   try {
-    const response = await axiosService.get<AxiosResponse<Users[]>>(
-      `/api/protected/users${params}`
-    )
+    const response = await axiosService.get(`/api/protected/users${params}`)
 
     return response.data.data
   } catch (e) {

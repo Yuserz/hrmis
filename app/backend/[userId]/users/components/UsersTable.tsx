@@ -46,12 +46,21 @@ import { useAuth } from '@/services/auth/state/auth-state'
 import { useUserDialog } from '@/services/auth/state/user-dialog'
 import { useShallow } from 'zustand/shallow'
 import { avatarName } from '@/helpers/avatarName'
+import { Pagination } from '@/components/custom/Pagination'
+import { Pagination as PaginationType } from '@/lib/types/pagination'
+import { useRouter, usePathname } from 'next/navigation'
+import { debounce } from 'lodash'
 
-interface UserTableData {
+interface UserTableData extends PaginationType {
   users: Users[]
 }
 
-export function UsersTable({ users: data }: UserTableData) {
+export function UsersTable({
+  users: data,
+  totalPages,
+  currentPage,
+  count
+}: UserTableData) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -63,6 +72,27 @@ export function UsersTable({ users: data }: UserTableData) {
   const { toggleOpen } = useUserDialog(
     useShallow((state) => ({ toggleOpen: state.toggleOpenDialog }))
   )
+
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const onDebounce = React.useMemo(
+    () =>
+      debounce((value) => {
+        if (!!value) {
+          router.replace(`${pathname}?page=${currentPage}&search=${value}`)
+          return
+        }
+
+        router.replace(`${pathname}?page=${currentPage}`)
+      }, 500),
+    [pathname, router, currentPage]
+  )
+
+  const onSearch = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const { value } = event.target
+    onDebounce(value)
+  }
 
   const state = useAuth()
 
@@ -157,7 +187,7 @@ export function UsersTable({ users: data }: UserTableData) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              {row.original.role !== 'admin' && (
+              {['employee'].includes(row.original.role) && (
                 <DropdownMenuItem>
                   <File />
                   View PDS
@@ -215,10 +245,7 @@ export function UsersTable({ users: data }: UserTableData) {
       <div className='flex items-center py-4'>
         <Input
           placeholder='Search users...'
-          value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
-            table.getColumn('email')?.setFilterValue(event.target.value)
-          }
+          onChange={(event) => onSearch(event)}
           className='max-w-sm'
         />
 
@@ -305,26 +332,7 @@ export function UsersTable({ users: data }: UserTableData) {
           </TableBody>
         </Table>
       </div>
-      <div className='flex items-center justify-end space-x-2 py-4'>
-        <div className='space-x-2'>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
-          >
-            Previous
-          </Button>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <Pagination {...{ totalPages, currentPage, count }} />
     </div>
   )
 }

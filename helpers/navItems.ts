@@ -11,7 +11,7 @@ export const adminMenus = (id: string): SideMenu[] => {
     },
     {
       title: 'Users',
-      url: `/backend/${id}/users`,
+      url: `/backend/${id}/users?page=1`,
       icon: Users,
       isActive: true
     }

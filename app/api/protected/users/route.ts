@@ -20,15 +20,18 @@ export async function GET(req: NextRequest) {
     const page = Number(url.get('page') || 1)
     const perPage = Number(url.get('perPage') || 10)
     const sortBy = url.get('sortBy') || 'created_at'
+    const search = url.get('search') || ''
 
-    const { data, error } = await paginatedData<Users>(
-      'users',
-      supabase,
-      'id, employee_id, username, email, role, avatar, created_at, updated_at, archived_at',
-      page,
-      perPage,
-      sortBy
-    )
+    const { data, error, count, totalPages, currentPage } =
+      await paginatedData<Users>(
+        'users',
+        supabase,
+        'id, employee_id, username, email, role, avatar, created_at, updated_at, archived_at',
+        { column: 'username', query: search },
+        page,
+        perPage,
+        sortBy
+      )
 
     if (error) {
       return badRequestResponse({ error: error.message })
@@ -36,7 +39,12 @@ export async function GET(req: NextRequest) {
 
     return successResponse({
       message: 'Successfully fetched users',
-      data: data || []
+      data: {
+        users: data,
+        count,
+        totalPages,
+        currentPage
+      }
     })
   } catch (error) {
     const newError = error as Error
