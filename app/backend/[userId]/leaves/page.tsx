@@ -1,4 +1,5 @@
 import { getLeaveApplications } from '@/services/leave_applications/leave-applications.services'
+import { Container } from '@/components/custom/Container'
 import { LeaveApplicationsTable } from './components/LeaveApplicationsTable'
 import { JSX } from 'react'
 import { LeaveApplicationsForm } from '@/lib/types/leave_application'
@@ -15,7 +16,10 @@ export default async function Leaves({
   )
 
   return (
-    <div>
+    <Container
+      title='Leave Applications'
+      description='You can see and all filed leaves here.'
+    >
       <LeaveApplicationsTable
         {...{
           leave_applications:
@@ -25,6 +29,6 @@ export default async function Leaves({
           count: response?.count as number
         }}
       />
-    </div>
+    </Container>
   )
 }

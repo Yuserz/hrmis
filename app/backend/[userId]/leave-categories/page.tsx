@@ -1,4 +1,5 @@
 import { JSX } from 'react'
+import { Container } from '@/components/custom/Container'
 import { LeaveCateogriesTable } from './components/LeaveCategoriesTable'
 import { AddLeaveCategoriesDialog } from './components/AddCategoriesDialog'
 import { EditLeaveCategoriesDialog } from './components/EditCategoriesDialog'
@@ -17,7 +18,10 @@ export default async function LeaveCategories({
   )
 
   return (
-    <div>
+    <Container
+      title='Leave Categories'
+      description='You can add all leave categories here'
+    >
       <LeaveCateogriesTable
         {...{
           leave_categories:
@@ -31,6 +35,6 @@ export default async function LeaveCategories({
       <AddLeaveCategoriesDialog />
       <EditLeaveCategoriesDialog />
       <DeleteLeaveCategoryDialog />
-    </div>
+    </Container>
   )
 }
