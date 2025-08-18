@@ -68,7 +68,7 @@ CREATE TABLE public.leave_credits (
 );
 
 -- Indexes for leave_credits table
-CREATE INDEX idx_leave_credits_user_id ON public.leave_credits(user_id);
+CREATE UNIQUE INDEX idx_leave_credits_user_id ON public.leave_credits(user_id);
 CREATE INDEX idx_leave_credits_archived_at ON public.leave_credits(archived_at);
 
 -- Leave Categories table
@@ -482,12 +482,12 @@ CREATE POLICY admin_all_leave_credits ON public.leave_credits
 CREATE POLICY insert_leave_credits ON public.leave_credits
     FOR INSERT
     TO authenticated
-    WITH CHECK (user_id = auth.uid() AND archived_at IS NULL);
+    WITH CHECK (user_id = auth.uid());
 
 CREATE POLICY update_leave_credits ON public.leave_credits
     FOR UPDATE
     TO authenticated
-    WITH CHECK (user_id = auth.uid() AND archived_at IS NULL OR 
+    WITH CHECK (user_id = auth.uid() OR 
       ((( SELECT users_1.role
             FROM users users_1
             WHERE (users_1.id = auth.uid())) = 'admin'::text))
