@@ -1,7 +1,7 @@
 'use client'
 
 import { JSX, useTransition } from 'react'
-import { useUserDialog } from '@/services/auth/state/user-dialog'
+import { useUserDialog } from '@/services/auth/states/user-dialog'
 import { DialogAlert } from '@/components/custom/DialogAlert'
 import { revokeOrReinstate } from '@/services/users/users.services'
 import { useRouter } from 'next/navigation'

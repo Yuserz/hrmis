@@ -10,7 +10,7 @@ import {
 import { Spinner } from '@/components/custom/Spinner'
 import { createClient } from '@/config/client'
 import { User } from '@supabase/supabase-js'
-import { useAuth } from '@/services/auth/state/auth-state'
+import { useAuth } from '@/services/auth/states/auth-state'
 import { useShallow } from 'zustand/shallow'
 import { UserForm } from '@/lib/types/users'
 

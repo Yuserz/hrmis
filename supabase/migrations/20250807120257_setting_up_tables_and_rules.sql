@@ -502,8 +502,8 @@ CREATE POLICY employee_own_leave_credits ON public.leave_credits
 CREATE POLICY all_leave_categories ON public.leave_categories
     FOR ALL
     TO authenticated
-    USING (archived_at IS NULL)
-    WITH CHECK (archived_at IS NULL);
+    USING (true)
+    WITH CHECK (true);
 
 CREATE POLICY select_leave_categories ON public.leave_categories
     FOR SELECT

@@ -1,13 +1,13 @@
 import { JSX } from 'react'
 import { fetchUsers } from '@/services/users/users.services'
 import { Users } from '@/lib/types/users'
-import { RevokedReinstateDialog } from './components/revoke-reinstate-dialog'
+import { RevokedReinstateDialog } from './components/RevokeReinstateDialog'
 import { UsersTable } from './components/UsersTable'
-import { EditUserDialog } from './components/edit-user-dialog'
-import { AddUserDialog } from './components/add-user-dialog'
+import { EditUserDialog } from './components/EditUserDialog'
+import { AddUserDialog } from './components/AddUserDialog'
 import { Container } from '@/components/custom/Container'
-import { UpdatePassword } from './components/update-password-dialog'
-import { VerifyEmail } from './components/verify-email-dialog'
+import { UpdatePassword } from './components/UpdatePasswordDialog'
+import { VerifyEmail } from './components/VerifyEmailDialog'
 
 export default async function UsersPage({
   searchParams

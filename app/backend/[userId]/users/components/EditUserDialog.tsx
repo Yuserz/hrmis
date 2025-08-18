@@ -1,6 +1,6 @@
 'use client'
 
-import { JSX, useState, useTransition } from 'react'
+import { JSX, useState, useTransition, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -22,81 +22,78 @@ import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { CustomButton } from '@/components/custom/CustomButton'
-import { regularEmailRegex } from '@/helpers/reusableRegex'
-import { useUserDialog } from '@/services/auth/state/user-dialog'
+import { useUserDialog } from '@/services/auth/states/user-dialog'
 import { UserForm } from '@/lib/types/users'
 import { useRouter } from 'next/navigation'
+import { updateUserInfo } from '@/services/users/users.services'
 import { useShallow } from 'zustand/react/shallow'
-import { signUp } from '@/services/users/users.services'
 import { roleTypes } from '@/app/auth/sign-in/helpers/constants'
 import { ImageUpload } from '@/components/custom/ImageUpload'
+import { isEqual } from 'lodash'
+import { toast } from 'sonner'
 
-interface AddUserDialog extends UserForm {
-  password: string
-  confirmPassword: string
-  avatar: File[]
+interface EditUserDialog extends UserForm {
+  avatar: File[] | string
+  oldAvatar: string
 }
 
-interface UserFormData extends UserForm {
-  avatar: File[]
-}
-
-export function AddUserDialog(): JSX.Element {
+export function EditUserDialog(): JSX.Element {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<string>('')
 
-  const { open, toggleOpen, type } = useUserDialog(
+  const { open, toggleOpen, type, data } = useUserDialog(
     useShallow((state) => ({
       open: state.open,
       type: state.type,
-      toggleOpen: state.toggleOpenDialog
+      toggleOpen: state.toggleOpenDialog,
+      data: state.data
     }))
   )
+
+  const oldData = {
+    avatar: data?.avatar,
+    employee_id: data?.employee_id,
+    oldAvatar: data?.avatar,
+    role: data?.role,
+    username: data?.username,
+    email: data?.email
+  }
 
   const {
     handleSubmit,
     register,
     reset,
     formState: { errors },
-    setError,
     control
-  } = useForm<AddUserDialog>()
+  } = useForm<EditUserDialog>()
 
   const resetVariable = (): void => {
-    reset({
-      email: '',
-      password: '',
-      username: '',
-      confirmPassword: '',
-      employee_id: '',
-      role: ''
-    })
     setMessage('')
     router.refresh()
     toggleOpen?.(false, null, null)
   }
 
-  const onSubmit = async (data: AddUserDialog): Promise<void> => {
-    const { email, username, role, employee_id, avatar } = data
+  const onSubmit = async (editData: EditUserDialog): Promise<void> => {
+    const { avatar } = editData
+
     startTransition(async () => {
       try {
-        const { password, confirmPassword } = data
-        if (password !== confirmPassword) {
-          setError('confirmPassword', {
-            message: "password doesn't matched"
+        if (isEqual(editData, oldData)) {
+          toast.info('Info', {
+            description: 'No changes in data.'
           })
+
+          toggleOpen?.(false, null, null)
           return
         }
 
-        await signUp({
-          email,
-          username: username?.toLowerCase() as string,
-          password,
-          role,
-          employee_id,
-          avatar: avatar || []
-        } as UserFormData)
+        await updateUserInfo({
+          ...editData,
+          email: data?.email as string,
+          avatar: avatar as File[],
+          id: data?.id as string
+        })
         resetVariable()
       } catch (error) {
         setMessage(error as string)
@@ -104,7 +101,20 @@ export function AddUserDialog(): JSX.Element {
     })
   }
 
-  const isOpenDialog = open && type === 'add'
+  useEffect(() => {
+    if (!!data) {
+      reset({
+        avatar: data.avatar as string,
+        username: data.username,
+        role: data.role,
+        employee_id: data.employee_id,
+        oldAvatar: data.avatar as string,
+        email: data.email as string
+      })
+    }
+  }, [data, reset])
+
+  const isOpenDialog = open && type === 'edit'
 
   return (
     <Dialog
@@ -113,53 +123,17 @@ export function AddUserDialog(): JSX.Element {
     >
       <DialogContent className='sm:max-w-[40rem]'>
         <DialogHeader>
-          <DialogTitle>Add New User</DialogTitle>
+          <DialogTitle>Edit New User</DialogTitle>
         </DialogHeader>
 
-        <div className='grid grid-cols-2 gap-2'>
-          <Input
-            title='Email'
-            {...register('email', {
-              required: 'Field is required.',
-
-              pattern: {
-                value: regularEmailRegex,
-                message: 'invalid email address'
-              }
-            })}
-            hasError={!!errors.email}
-            errorMessage={errors.email?.message}
-          />
-
-          <Input
-            title='Username'
-            {...register('username', {
-              required: 'Field is required.'
-            })}
-            hasError={!!errors.email}
-            errorMessage={errors.email?.message}
-          />
-        </div>
-        <div className='grid grid-cols-2 gap-2'>
-          <Input
-            title='Password'
-            type='password'
-            {...register('password', {
-              required: 'Field is required.'
-            })}
-            hasError={!!errors.password}
-            errorMessage={errors.password?.message}
-          />
-          <Input
-            title='Confirm Password'
-            type='password'
-            {...register('confirmPassword', {
-              required: 'Field is required.'
-            })}
-            hasError={!!errors.confirmPassword}
-            errorMessage={errors.confirmPassword?.message}
-          />
-        </div>
+        <Input
+          title='Username'
+          {...register('username', {
+            required: 'Field is required.'
+          })}
+          hasError={!!errors.username}
+          errorMessage={errors.username?.message}
+        />
 
         <div className='grid grid-cols-2 gap-2'>
           <div className='space-y-2'>
@@ -200,6 +174,7 @@ export function AddUserDialog(): JSX.Element {
             render={({ field: { onChange, value } }) => (
               <ImageUpload
                 title='Image'
+                filePreview={typeof value === 'string' ? value : undefined}
                 pendingFiles={value as File[]}
                 isLoading={isPending}
                 acceptedImageCount={1}
@@ -230,7 +205,7 @@ export function AddUserDialog(): JSX.Element {
               disabled={isPending}
               isLoading={isPending}
             >
-              Create
+              Update
             </CustomButton>
           </DialogClose>
         </DialogFooter>
