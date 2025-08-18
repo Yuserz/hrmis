@@ -19,7 +19,10 @@ export const paginatedData = async <TData>(
   currentPage: number
   count: number | null
 }> => {
-  let query = supabase.from(tableName).select(columns, { count: 'exact' })
+  let query = supabase
+    .from(tableName)
+    .select(columns, { count: 'exact' })
+    .is('archived_at', null)
 
   if (search && search.column && search.query !== 'undefined') {
     query = query.ilike(search.column, `%${search.query}%`)

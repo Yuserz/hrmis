@@ -12,7 +12,7 @@ import {
   SidebarRail
 } from '@/components/ui/sidebar'
 import { adminMenus, employeeMenus, staffMenus } from '@/helpers/navItems'
-import { useAuth } from '@/services/auth/state/auth-state'
+import { useAuth } from '@/services/auth/states/auth-state'
 import { appName } from '@/helpers/appName'
 
 export function AppSidebar({

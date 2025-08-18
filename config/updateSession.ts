@@ -53,7 +53,12 @@ export async function updateSession(request: NextRequest) {
   const baseUserURL = `/employee/${userData?.id}`
   const baseStaffURL = `/staff/${userData?.id}`
 
-  const protectedAdminRoutes = ['dashboard', 'users']
+  const protectedAdminRoutes = [
+    'dashboard',
+    'users',
+    'leave-categories',
+    'leaves'
+  ]
   const employeeRestrictedRoutes = ['/backend', '/staff']
   const staffRestrictedRoutes = ['/backend', '/employee']
   const adminRestrictedRoutes = ['/employee', '/staff']
