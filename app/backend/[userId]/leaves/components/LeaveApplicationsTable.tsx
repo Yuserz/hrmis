@@ -174,11 +174,19 @@ export function LeaveApplicationsTable({
                 <Pencil />
                 Edit File
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  toggleOpen?.(true, 'approve', { ...row.original })
+                }
+              >
                 <CheckCircle />
                 Approve
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  toggleOpen?.(true, 'delete', { ...row.original })
+                }
+              >
                 <Trash />
                 Delete
               </DropdownMenuItem>

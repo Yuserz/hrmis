@@ -1,0 +1,32 @@
+import { NextRequest } from 'next/server'
+import { validationErrorNextResponse } from '@/app/api/helpers/response'
+import { isEmpty } from 'lodash'
+import {
+  approveDisapproveLeave,
+  deleteLeaveRequest
+} from '../../model/leave_applications'
+
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const body = await req.json()
+  const { id: leaveId } = await params
+
+  if (isEmpty(body)) {
+    return validationErrorNextResponse()
+  }
+
+  if (body.type === 'update-leave-status') {
+    return approveDisapproveLeave(body.status, leaveId)
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id: leaveId } = await params
+
+  return deleteLeaveRequest(leaveId)
+}

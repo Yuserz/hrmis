@@ -527,8 +527,7 @@ CREATE POLICY admin_all_leave_applications ON public.leave_applications
     USING (
       ((( SELECT users_1.role
             FROM users users_1
-            WHERE (users_1.id = auth.uid())) = 'admin'::text))
-      AND archived_at IS NULL)
+            WHERE (users_1.id = auth.uid())) = 'admin'::text)))
     WITH CHECK (
       ((( SELECT users_1.role
             FROM users users_1

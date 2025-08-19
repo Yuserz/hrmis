@@ -5,6 +5,8 @@ import { LeaveCategories } from './leave_categories'
 export type LeaveApplications =
   Database['public']['Tables']['leave_applications']['Row']
 
+export type LeaveStatus = 'approved' | 'disapproved' | 'pending'
+
 export type LeaveApplicationsData = Omit<
   LeaveApplications,
   'user_id' | 'leave_id'

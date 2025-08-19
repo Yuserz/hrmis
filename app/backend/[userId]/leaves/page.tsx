@@ -1,6 +1,8 @@
 import { JSX } from 'react'
 import { FileLeaveDialog } from './components/FileLeaveDialog'
+import { ApproveDisapproveDialog } from './components/ApprovedDisapprovedStatus'
 import { getLeaveApplications } from '@/services/leave_applications/leave-applications.services'
+import { DeleteLeaveRequestDialog } from './components/DeleteDialog'
 import { Container } from '@/components/custom/Container'
 import { LeaveApplicationsTable } from './components/LeaveApplicationsTable'
 import { LeaveApplicationsForm } from '@/lib/types/leave_application'
@@ -33,6 +35,8 @@ export default async function Leaves({
         />
 
         <FileLeaveDialog />
+        <ApproveDisapproveDialog />
+        <DeleteLeaveRequestDialog />
       </>
     </Container>
   )
