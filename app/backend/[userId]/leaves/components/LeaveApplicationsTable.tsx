@@ -13,7 +13,14 @@ import {
   useReactTable,
   VisibilityState
 } from '@tanstack/react-table'
-import { ChevronDown, Plus, MoreHorizontal, Pencil, Trash } from 'lucide-react'
+import {
+  ChevronDown,
+  Plus,
+  MoreHorizontal,
+  Pencil,
+  Trash,
+  CheckCircle
+} from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -33,13 +40,13 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
-import { useLeaveCategoriesDialog } from '@/services/leave_categories/states/leave-categories-dialog'
 import { useShallow } from 'zustand/shallow'
 import { Pagination } from '@/components/custom/Pagination'
 import { Pagination as PaginationType } from '@/lib/types/pagination'
 import { useRouter, usePathname } from 'next/navigation'
 import { debounce } from 'lodash'
 import { LeaveApplicationsForm } from '@/lib/types/leave_application'
+import { useLeaveApplicationDialog } from '@/services/leave_applications/states/leave-application-dialog'
 
 interface LeaveTableData extends PaginationType {
   leave_applications: LeaveApplicationsForm[]
@@ -59,7 +66,7 @@ export function LeaveApplicationsTable({
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-  const { toggleOpen } = useLeaveCategoriesDialog(
+  const { toggleOpen } = useLeaveApplicationDialog(
     useShallow((state) => ({ toggleOpen: state.toggleOpenDialog }))
   )
 
@@ -165,7 +172,11 @@ export function LeaveApplicationsTable({
             <DropdownMenuContent align='end'>
               <DropdownMenuItem>
                 <Pencil />
-                Edit info
+                Edit File
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <CheckCircle />
+                Approve
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Trash />

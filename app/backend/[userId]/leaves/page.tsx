@@ -1,7 +1,8 @@
+import { JSX } from 'react'
+import { FileLeaveDialog } from './components/FileLeaveDialog'
 import { getLeaveApplications } from '@/services/leave_applications/leave-applications.services'
 import { Container } from '@/components/custom/Container'
 import { LeaveApplicationsTable } from './components/LeaveApplicationsTable'
-import { JSX } from 'react'
 import { LeaveApplicationsForm } from '@/lib/types/leave_application'
 
 export default async function Leaves({
@@ -20,15 +21,19 @@ export default async function Leaves({
       title='Leave Applications'
       description='You can see and all filed leaves here.'
     >
-      <LeaveApplicationsTable
-        {...{
-          leave_applications:
-            response.leave_applications as LeaveApplicationsForm[],
-          totalPages: response?.totalPages as number,
-          currentPage: response?.currentPage as number,
-          count: response?.count as number
-        }}
-      />
+      <>
+        <LeaveApplicationsTable
+          {...{
+            leave_applications:
+              response.leave_applications as LeaveApplicationsForm[],
+            totalPages: response?.totalPages as number,
+            currentPage: response?.currentPage as number,
+            count: response?.count as number
+          }}
+        />
+
+        <FileLeaveDialog />
+      </>
     </Container>
   )
 }
