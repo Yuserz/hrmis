@@ -1,7 +1,33 @@
 import axios from 'axios'
+import { LeaveApplications } from '@/lib/types/leave_application'
 import { axiosService } from '@/app/api/axios-client'
 import { LeaveStatus } from '@/lib/types/leave_application'
 import { toast } from 'sonner'
+
+export const addLeaveRequest = async (
+  data: Omit<
+    LeaveApplications,
+    'created_at' | 'updated_at' | 'archived_at' | 'id'
+  >
+) => {
+  try {
+    const response = await axiosService.post(
+      `/api/protected/leave_application`,
+      {
+        data,
+        type: 'add-leave-request'
+      }
+    )
+
+    toast('Successfully', {
+      description: response.data.message
+    })
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
+      throw e.response?.data.error
+    }
+  }
+}
 
 export const getLeaveApplications = async (params: string) => {
   try {

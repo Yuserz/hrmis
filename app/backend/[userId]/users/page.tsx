@@ -16,7 +16,7 @@ export default async function UsersPage({
 }): Promise<JSX.Element> {
   const { page, search } = await searchParams
   const response = await fetchUsers(
-    `?page=${page}&perPage=2&search=${search}&sortBy=created_at`
+    `?page=${page}&perPage=10&search=${search}&sortBy=created_at`
   )
 
   return (

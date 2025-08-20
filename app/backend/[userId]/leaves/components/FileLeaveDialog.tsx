@@ -9,16 +9,60 @@ import {
   DialogTitle,
   DialogClose
 } from '@/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { Plus } from 'lucide-react'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { CustomButton } from '@/components/custom/CustomButton'
 import { useLeaveApplicationDialog } from '@/services/leave_applications/states/leave-application-dialog'
 import { useShallow } from 'zustand/react/shallow'
 import { useRouter } from 'next/navigation'
+import { Controller } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
+import { useAuth } from '@/services/auth/states/auth-state'
+import { CalendarPicker } from '@/components/custom/CalendarPicker'
+import { LeaveApplicationsFormData } from '@/lib/types/leave_application'
+import { LeaveCategories } from '@/lib/types/leave_categories'
+import { addLeaveRequest } from '@/services/leave_applications/leave-applications.services'
+import { DateRange } from 'react-day-picker'
 
-export function FileLeaveDialog(): JSX.Element {
+interface FileLeaveDialog {
+  category: Pick<LeaveCategories, 'name' | 'id'>[]
+}
+
+export function FileLeaveDialog({ category }: FileLeaveDialog): JSX.Element {
   const [isPending, startTransition] = useTransition()
-
+  const state = useAuth()
   const router = useRouter()
+
+  const categoryData = category.map((item) => ({
+    id: item.id,
+    name: item.name
+  }))
+
+  const {
+    control,
+    formState: { errors },
+    handleSubmit,
+    register,
+    watch,
+    reset
+  } = useForm<LeaveApplicationsFormData>({
+    defaultValues: {
+      leave_id: '',
+      remarks: '',
+      dateRange: undefined
+    }
+  })
+
+  const dateRange = watch('dateRange')
 
   const { open, toggleOpen, type } = useLeaveApplicationDialog(
     useShallow((state) => ({
@@ -32,11 +76,26 @@ export function FileLeaveDialog(): JSX.Element {
   const resetVariables = (): void => {
     toggleOpen?.(false, null, null)
     router.refresh()
+    reset()
   }
 
-  const onSubmit = (): void => {
+  const onSubmit = (data: LeaveApplicationsFormData): void => {
     startTransition(async () => {
-      console.log()
+      const { leave_id, remarks } = data
+      const startDate = data.dateRange?.from
+      const endDate = data.dateRange?.to
+
+      const newData = {
+        leave_id,
+        user_id: state.id,
+        status: 'pending',
+        remarks,
+        start_date: new Date(startDate as Date).toISOString(),
+        end_date: new Date(endDate as Date).toISOString()
+      }
+
+      addLeaveRequest(newData as typeof newData)
+      resetVariables()
     })
   }
 
@@ -52,6 +111,52 @@ export function FileLeaveDialog(): JSX.Element {
           <DialogTitle>Leave Applications</DialogTitle>
         </DialogHeader>
 
+        <div className='space-y-2'>
+          <Label className='text-sm font-medium mb-1.5'>Leave Status*</Label>
+          <Controller
+            name='leave_id'
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <Select
+                value={value as string}
+                onValueChange={(e) => onChange(e)}
+              >
+                <SelectTrigger className='w-full'>
+                  <SelectValue placeholder='Select Leave Status' />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryData.map((item, index) => (
+                    <SelectItem key={`${item}-${index}`} value={item.id}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+          {!!errors.leave_id && (
+            <h1 className='text-sm text-red-499'>{errors.leave_id.message}</h1>
+          )}
+        </div>
+
+        <CalendarPicker
+          title='Start and End Date'
+          name='dateRange'
+          control={control}
+          date={dateRange as DateRange}
+        />
+
+        <Textarea
+          title='Description'
+          className='h-[10rem]'
+          placeholder='Leave Description'
+          hasError={!!errors.remarks}
+          errorMessage={errors.remarks?.message}
+          {...register('remarks', {
+            required: 'Required field.'
+          })}
+        />
+
         <DialogFooter>
           <DialogClose asChild>
             <Button type='button' variant='outline'>
@@ -60,8 +165,12 @@ export function FileLeaveDialog(): JSX.Element {
           </DialogClose>
 
           <DialogClose asChild>
-            <CustomButton type='button' isLoading={isPending}>
-              Create
+            <CustomButton
+              type='button'
+              isLoading={isPending}
+              onClick={handleSubmit(onSubmit)}
+            >
+              <Plus /> File leave
             </CustomButton>
           </DialogClose>
         </DialogFooter>

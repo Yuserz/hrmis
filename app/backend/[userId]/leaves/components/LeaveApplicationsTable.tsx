@@ -98,11 +98,7 @@ export function LeaveApplicationsTable({
         header: 'Email',
         cell: function ({ row }) {
           return (
-            <div className='flex items-center gap-2'>
-              <div className='capitalize font-semibold'>
-                {row.original.users.email}
-              </div>
-            </div>
+            <div className='font-semibold'>{row.original.users?.email}</div>
           )
         }
       },
@@ -112,7 +108,7 @@ export function LeaveApplicationsTable({
         cell: function ({ row }) {
           return (
             <div className='capitalize'>
-              {row.original.leave_categories.name}
+              {row.original.leave_categories?.name}
             </div>
           )
         }

@@ -14,7 +14,7 @@ export default async function LeaveCategories({
 }): Promise<JSX.Element> {
   const { page, search } = await searchParams
   const response = await getLeaveCategories(
-    `?page=${page}&perPage=2&search=${search}&sortBy=created_at`
+    `?page=${page}&perPage=10&search=${search}&sortBy=created_at`
   )
 
   return (

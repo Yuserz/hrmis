@@ -482,7 +482,11 @@ CREATE POLICY admin_all_leave_credits ON public.leave_credits
 CREATE POLICY insert_leave_credits ON public.leave_credits
     FOR INSERT
     TO authenticated
-    WITH CHECK (user_id = auth.uid());
+    WITH CHECK (
+        ((user_id = auth.uid()) OR (( SELECT users_1.role
+         FROM users users_1
+        WHERE (users_1.id = auth.uid())) = 'admin'::text))
+    );
 
 CREATE POLICY update_leave_credits ON public.leave_credits
     FOR UPDATE

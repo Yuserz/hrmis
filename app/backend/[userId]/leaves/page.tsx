@@ -1,11 +1,12 @@
 import { JSX } from 'react'
 import { FileLeaveDialog } from './components/FileLeaveDialog'
 import { ApproveDisapproveDialog } from './components/ApprovedDisapprovedStatus'
-import { getLeaveApplications } from '@/services/leave_applications/leave-applications.services'
 import { DeleteLeaveRequestDialog } from './components/DeleteDialog'
 import { Container } from '@/components/custom/Container'
 import { LeaveApplicationsTable } from './components/LeaveApplicationsTable'
 import { LeaveApplicationsForm } from '@/lib/types/leave_application'
+import { getLeaveApplications } from '@/services/leave_applications/leave-applications.services'
+import { getLeaveCategories } from '@/services/leave_categories/leave-categories.services'
 
 export default async function Leaves({
   searchParams
@@ -15,7 +16,11 @@ export default async function Leaves({
   const { page, search } = await searchParams
 
   const response = await getLeaveApplications(
-    `?page=${page}&perPage=2&search=${search}&sortBy=created_at`
+    `?page=${page}&perPage=10&search=${search}&sortBy=created_at`
+  )
+
+  const category = await getLeaveCategories(
+    `?&search=${search}&sortBy=created_at`
   )
 
   return (
@@ -34,7 +39,7 @@ export default async function Leaves({
           }}
         />
 
-        <FileLeaveDialog />
+        <FileLeaveDialog category={category.leave_categories} />
         <ApproveDisapproveDialog />
         <DeleteLeaveRequestDialog />
       </>

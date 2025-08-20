@@ -4,9 +4,12 @@ import { paginatedData } from '../../helpers/paginated-data'
 import {
   badRequestResponse,
   successResponse,
-  generalErrorResponse
+  generalErrorResponse,
+  validationErrorNextResponse
 } from '../../helpers/response'
+import { isEmpty } from 'lodash'
 import { LeaveApplications } from '@/lib/types/leave_application'
+import { addLeaveRequest } from '../model/leave_applications'
 
 export async function GET(req: NextRequest) {
   try {
@@ -23,8 +26,8 @@ export async function GET(req: NextRequest) {
       await paginatedData<LeaveApplications>(
         'leave_applications',
         supabase,
-        'id, users(email, username), leave_categories(name), start_date, end_date, status, remarks, created_at, updated_at, archived_at',
-        { column: 'name', query: search },
+        'id, users!inner(email, username), leave_categories(name), start_date, end_date, status, remarks, created_at, updated_at, archived_at',
+        { column: 'users.email', query: search },
         page,
         perPage,
         sortBy
@@ -46,5 +49,17 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     const newError = error as Error
     return generalErrorResponse({ error: newError.message })
+  }
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.json()
+
+  if (isEmpty(body)) {
+    return validationErrorNextResponse()
+  }
+
+  if (body.type === 'add-leave-request') {
+    return addLeaveRequest(body.data)
   }
 }

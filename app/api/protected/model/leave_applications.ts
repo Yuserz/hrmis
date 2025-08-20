@@ -1,6 +1,27 @@
-import { LeaveStatus } from '@/lib/types/leave_application'
+import { LeaveApplications, LeaveStatus } from '@/lib/types/leave_application'
 import { generalErrorResponse, successResponse } from '../../helpers/response'
 import { createClient } from '@/config'
+
+export const addLeaveRequest = async (
+  data: Omit<LeaveApplications, 'created_at' | 'updated_at' | 'archived_at'>
+) => {
+  try {
+    const supabase = await createClient()
+
+    const { error } = await supabase.from('leave_applications').insert(data)
+
+    if (error) {
+      return generalErrorResponse({ error: error.message })
+    }
+
+    return successResponse({
+      message: 'Successfully added leave request.'
+    })
+  } catch (error) {
+    const newError = error as Error
+    return generalErrorResponse({ error: newError.message })
+  }
+}
 
 export const approveDisapproveLeave = async (
   status: LeaveStatus,
