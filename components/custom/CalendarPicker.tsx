@@ -61,7 +61,7 @@ export function CalendarPicker({
                 selected={value as DateRange}
                 captionLayout='dropdown'
                 timeZone='UTC'
-                disabled={{ before: new Date() }}
+                disabled={[{ before: new Date() }, { dayOfWeek: [0, 6] }]}
                 onSelect={(date) => {
                   onChange(date)
 
