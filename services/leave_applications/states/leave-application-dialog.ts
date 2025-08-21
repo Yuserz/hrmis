@@ -31,10 +31,12 @@ const initialState: LeaveApplicationsDialog = {
   data: {
     users: {
       email: '',
-      username: ''
+      username: '',
+      id: ''
     },
     leave_categories: {
-      name: ''
+      name: '',
+      id: ''
     },
     start_date: '',
     end_date: '',
