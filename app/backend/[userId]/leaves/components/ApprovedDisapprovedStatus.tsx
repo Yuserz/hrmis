@@ -17,6 +17,7 @@ export function ApproveDisapproveDialog(): JSX.Element {
       toggleOpen: state.toggleOpenDialog
     }))
   )
+
   const router = useRouter()
 
   const resetVariables = (): void => {
@@ -26,14 +27,22 @@ export function ApproveDisapproveDialog(): JSX.Element {
 
   const onApproveLeaveRequest = async (): Promise<void> => {
     startTransition(async () => {
-      await approveDisapprovestatus('approved', data?.id as string)
+      await approveDisapprovestatus(
+        'approved',
+        data?.users?.id as string,
+        data?.id as string
+      )
       resetVariables()
     })
   }
 
   const onDisapproveLeaveRequest = async (): Promise<void> => {
     startTransition(async () => {
-      await approveDisapprovestatus('disapproved', data?.id as string)
+      await approveDisapprovestatus(
+        'disapproved',
+        data?.users?.id as string,
+        data?.id as string
+      )
       resetVariables()
     })
   }

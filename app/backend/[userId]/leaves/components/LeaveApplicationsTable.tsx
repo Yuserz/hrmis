@@ -185,7 +185,9 @@ export function LeaveApplicationsTable({
                 }
               >
                 <CheckCircle />
-                Approve
+                {row.original.status === 'approved'
+                  ? 'Disapproved'
+                  : 'Approved'}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() =>

@@ -1,5 +1,9 @@
 import { LeaveApplications, LeaveStatus } from '@/lib/types/leave_application'
-import { generalErrorResponse, successResponse } from '../../helpers/response'
+import {
+  conflictRequestResponse,
+  generalErrorResponse,
+  successResponse
+} from '../../helpers/response'
 import { createClient } from '@/config'
 
 type LeaveApplicationRequest = Omit<
@@ -53,10 +57,30 @@ export const editLeaveRequest = async (
 
 export const approveDisapproveLeave = async (
   status: LeaveStatus,
+  userId: string,
   id: string
 ) => {
   try {
     const supabase = await createClient()
+
+    if (status === 'approved') {
+      const { error: errorCredits } = await supabase.rpc(
+        'decrement_update_credits',
+        {
+          p_user_id: userId
+        }
+      )
+
+      if (errorCredits?.message === 'User no longer have leave credits left') {
+        return conflictRequestResponse({
+          error: errorCredits?.message
+        })
+      }
+
+      if (errorCredits) {
+        return generalErrorResponse({ error: errorCredits })
+      }
+    }
 
     const { error } = await supabase
       .from('leave_applications')

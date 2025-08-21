@@ -613,3 +613,21 @@ CREATE POLICY employee_own_awards ON public.awards
     FOR SELECT
     TO authenticated
     USING (user_id = auth.uid() AND archived_at IS NULL);
+
+
+CREATE OR REPLACE FUNCTION decrement_update_credits(p_user_id UUID)
+RETURNS VOID AS $$
+DECLARE
+  current_credits INTEGER;
+BEGIN
+  SELECT credits INTO current_credits FROM leave_credits WHERE user_id = p_user_id;
+
+  IF current_credits = 0 THEN
+    RAISE EXCEPTION 'User no longer have leave credits left';
+  END IF;
+
+  UPDATE leave_credits 
+  SET credits = leave_credits.credits - 1 
+  WHERE leave_credits.user_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

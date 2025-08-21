@@ -68,6 +68,7 @@ export const getLeaveApplications = async (params: string) => {
 
 export const approveDisapprovestatus = async (
   status: LeaveStatus,
+  userId: string,
   id: string
 ) => {
   try {
@@ -75,6 +76,7 @@ export const approveDisapprovestatus = async (
       `/api/protected/leave_application/${id}`,
       {
         status,
+        userId,
         type: 'update-leave-status'
       }
     )
@@ -84,6 +86,11 @@ export const approveDisapprovestatus = async (
     })
   } catch (e) {
     if (axios.isAxiosError(e)) {
+      if (e.response?.data.error === 'User no longer have leave credits left') {
+        toast.error('ERROR!', { description: e.response?.data.error })
+        return
+      }
+
       throw e.response?.data.error
     }
   }

@@ -19,7 +19,7 @@ export async function PUT(
   }
 
   if (body.type === 'update-leave-status') {
-    return approveDisapproveLeave(body.status, leaveId)
+    return approveDisapproveLeave(body.status, body.userId, leaveId)
   }
 
   if (body.type === 'edit-leave-request') {
