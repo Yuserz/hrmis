@@ -1,6 +1,6 @@
 'use client'
 
-import { JSX, useTransition } from 'react'
+import { JSX, useTransition, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -30,14 +30,16 @@ import { useAuth } from '@/services/auth/states/auth-state'
 import { CalendarPicker } from '@/components/custom/CalendarPicker'
 import { LeaveApplicationsFormData } from '@/lib/types/leave_application'
 import { LeaveCategories } from '@/lib/types/leave_categories'
-import { addLeaveRequest } from '@/services/leave_applications/leave-applications.services'
+import { editLeaveRequest } from '@/services/leave_applications/leave-applications.services'
 import { DateRange } from 'react-day-picker'
 
 interface FileLeaveDialog {
   category: Pick<LeaveCategories, 'name' | 'id'>[]
 }
 
-export function FileLeaveDialog({ category }: FileLeaveDialog): JSX.Element {
+export function EditFileLeaveDialog({
+  category
+}: FileLeaveDialog): JSX.Element {
   const [isPending, startTransition] = useTransition()
   const state = useAuth()
   const router = useRouter()
@@ -64,7 +66,7 @@ export function FileLeaveDialog({ category }: FileLeaveDialog): JSX.Element {
 
   const dateRange = watch('dateRange')
 
-  const { open, toggleOpen, type } = useLeaveApplicationDialog(
+  const { open, toggleOpen, type, data } = useLeaveApplicationDialog(
     useShallow((state) => ({
       open: state.open,
       type: state.type,
@@ -79,27 +81,40 @@ export function FileLeaveDialog({ category }: FileLeaveDialog): JSX.Element {
     reset()
   }
 
-  const onSubmit = (data: LeaveApplicationsFormData): void => {
+  const onSubmit = (leaveData: LeaveApplicationsFormData): void => {
+    const { leave_id, remarks } = leaveData
+    const startDate = leaveData.dateRange?.from
+    const endDate = leaveData.dateRange?.to
+
+    const newData = {
+      leave_id,
+      user_id: state.id,
+      status: 'pending',
+      remarks,
+      start_date: new Date(startDate as Date).toISOString(),
+      end_date: new Date(endDate as Date).toISOString()
+    }
+
     startTransition(async () => {
-      const { leave_id, remarks } = data
-      const startDate = data.dateRange?.from
-      const endDate = data.dateRange?.to
-
-      const newData = {
-        leave_id,
-        user_id: state.id,
-        status: 'pending',
-        remarks,
-        start_date: new Date(startDate as Date).toISOString(),
-        end_date: new Date(endDate as Date).toISOString()
-      }
-
-      await addLeaveRequest(newData as typeof newData)
+      await editLeaveRequest(newData as typeof newData, data?.id as string)
       resetVariables()
     })
   }
 
-  const isOpenDialog = open && type === 'add'
+  useEffect(() => {
+    if (!!data) {
+      reset({
+        leave_id: data.leave_categories?.id,
+        dateRange: {
+          from: new Date(data.start_date as string),
+          to: new Date(data.end_date as string)
+        },
+        remarks: data.remarks
+      })
+    }
+  }, [data, reset])
+
+  const isOpenDialog = open && type === 'edit'
 
   return (
     <Dialog
@@ -108,7 +123,7 @@ export function FileLeaveDialog({ category }: FileLeaveDialog): JSX.Element {
     >
       <DialogContent className='sm:max-w-[40rem]'>
         <DialogHeader>
-          <DialogTitle>Leave Applications</DialogTitle>
+          <DialogTitle>Edit Leave Applications</DialogTitle>
         </DialogHeader>
 
         <div className='space-y-2'>
@@ -170,7 +185,7 @@ export function FileLeaveDialog({ category }: FileLeaveDialog): JSX.Element {
               isLoading={isPending}
               onClick={handleSubmit(onSubmit)}
             >
-              <Plus /> File leave
+              <Plus /> Update Request
             </CustomButton>
           </DialogClose>
         </DialogFooter>

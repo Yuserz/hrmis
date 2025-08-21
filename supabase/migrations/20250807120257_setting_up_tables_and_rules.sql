@@ -91,7 +91,7 @@ CREATE TABLE public.leave_applications (
     leave_id UUID REFERENCES leave_categories(id) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'disapproved')),
+    status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'disapproved' , 'cancelled')),
     remarks TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE,

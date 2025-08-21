@@ -14,8 +14,8 @@ export type LeaveApplicationsData = Omit<
 >
 
 export interface LeaveApplicationsForm extends LeaveApplicationsData {
-  users: Pick<Users, 'email' | 'username'>
-  leave_categories: Pick<LeaveCategories, 'name'>
+  users: Pick<Users, 'email' | 'username' | 'id'>
+  leave_categories: Pick<LeaveCategories, 'name' | 'id'>
 }
 
 export interface LeaveApplicationsFormData extends LeaveApplications {

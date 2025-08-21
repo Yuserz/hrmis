@@ -3,7 +3,8 @@ import { validationErrorNextResponse } from '@/app/api/helpers/response'
 import { isEmpty } from 'lodash'
 import {
   approveDisapproveLeave,
-  deleteLeaveRequest
+  deleteLeaveRequest,
+  editLeaveRequest
 } from '../../model/leave_applications'
 
 export async function PUT(
@@ -19,6 +20,10 @@ export async function PUT(
 
   if (body.type === 'update-leave-status') {
     return approveDisapproveLeave(body.status, leaveId)
+  }
+
+  if (body.type === 'edit-leave-request') {
+    return editLeaveRequest(body.data, leaveId)
   }
 }
 

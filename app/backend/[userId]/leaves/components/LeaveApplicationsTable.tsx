@@ -37,6 +37,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { TooltipComponent } from '@/components/custom/Tooltip'
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
@@ -150,7 +151,13 @@ export function LeaveApplicationsTable({
         accessorKey: 'remarks',
         header: 'Remarks',
         cell: function ({ row }) {
-          return <div className='capitalize'>{row.original.remarks}</div>
+          return (
+            <TooltipComponent value={row.original.remarks as string}>
+              <div className='capitalize line-clamp-1 text-ellipsis w-30'>
+                {row.original.remarks}
+              </div>
+            </TooltipComponent>
+          )
         }
       },
       {
@@ -166,7 +173,9 @@ export function LeaveApplicationsTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => toggleOpen?.(true, 'edit', { ...row.original })}
+              >
                 <Pencil />
                 Edit File
               </DropdownMenuItem>

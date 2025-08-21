@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
       await paginatedData<LeaveApplications>(
         'leave_applications',
         supabase,
-        'id, users!inner(email, username), leave_categories(name), start_date, end_date, status, remarks, created_at, updated_at, archived_at',
+        'id, users!inner(email, username, id), leave_categories(name, id), start_date, end_date, status, remarks, created_at, updated_at, archived_at',
         { column: 'users.email', query: search },
         page,
         perPage,
