@@ -13,7 +13,14 @@ import {
   useReactTable,
   VisibilityState
 } from '@tanstack/react-table'
-import { ChevronDown, Plus, MoreHorizontal, Pencil, Trash } from 'lucide-react'
+import {
+  ChevronDown,
+  Plus,
+  MoreHorizontal,
+  Pencil,
+  Trash,
+  CheckCircle
+} from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -30,22 +37,24 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
+import { TooltipComponent } from '@/components/custom/Tooltip'
+import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
-import { useLeaveCategoriesDialog } from '@/services/leave_categories/states/leave-categories-dialog'
 import { useShallow } from 'zustand/shallow'
 import { Pagination } from '@/components/custom/Pagination'
 import { Pagination as PaginationType } from '@/lib/types/pagination'
 import { useRouter, usePathname } from 'next/navigation'
 import { debounce } from 'lodash'
-import { LeaveCategories } from '@/lib/types/leave_categories'
+import { LeaveApplicationsForm } from '@/lib/types/leave_application'
+import { useLeaveApplicationDialog } from '@/services/leave_applications/states/leave-application-dialog'
 
 interface LeaveTableData extends PaginationType {
-  leave_categories: LeaveCategories[]
+  leave_applications: LeaveApplicationsForm[]
 }
 
-export function LeaveCateogriesTable({
-  leave_categories: data,
+export function LeaveApplicationsTable({
+  leave_applications: data,
   totalPages,
   currentPage,
   count
@@ -58,7 +67,7 @@ export function LeaveCateogriesTable({
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-  const { toggleOpen } = useLeaveCategoriesDialog(
+  const { toggleOpen } = useLeaveApplicationDialog(
     useShallow((state) => ({ toggleOpen: state.toggleOpenDialog }))
   )
 
@@ -83,52 +92,71 @@ export function LeaveCateogriesTable({
     onDebounce(value)
   }
 
-  const columns: ColumnDef<LeaveCategories>[] = React.useMemo(
+  const columns: ColumnDef<LeaveApplicationsForm>[] = React.useMemo(
     () => [
       {
-        accessorKey: 'name',
-        header: 'Name',
+        accessorKey: 'users',
+        header: 'Email',
         cell: function ({ row }) {
           return (
-            <div className='flex items-center gap-2'>
-              <div className='capitalize font-semibold'>
-                {row.getValue('name')}
-              </div>
+            <div className='font-semibold'>{row.original.users?.email}</div>
+          )
+        }
+      },
+      {
+        accessorKey: 'leave_categories',
+        header: 'Application name',
+        cell: function ({ row }) {
+          return (
+            <div className='capitalize'>
+              {row.original.leave_categories?.name}
             </div>
           )
         }
       },
       {
-        accessorKey: 'created_at',
-        header: 'Created At',
+        accessorKey: 'start_date',
+        header: 'Started Date',
         cell: function ({ row }) {
           return (
-            <div className='flex items-center gap-2'>
-              <div className='capitalize font-semibold'>
-                {format(
-                  row.getValue('created_at'),
-                  "MMMM dd, yyyy hh:mm aaaaa'm'"
-                )}
-              </div>
+            <div className='capitalize'>
+              {format(row.original.start_date, "MMMM dd, yyyy hh:mm aaaaa'm'")}
             </div>
           )
         }
       },
       {
-        accessorKey: 'updated_at',
-        header: 'Updated At',
+        accessorKey: 'end_date',
+        header: 'End Date',
         cell: function ({ row }) {
           return (
-            <div className='flex items-center gap-2'>
-              <div className='capitalize font-semibold'>
-                {row.getValue('updated_at')
-                  ? format(
-                      row.getValue('updated_at'),
-                      "MMMM dd, yyyy hh:mm aaaaa'm'"
-                    )
-                  : 'N/A'}
-              </div>
+            <div className='capitalize'>
+              {format(row.original.end_date, "MMMM dd, yyyy hh:mm aaaaa'm'")}
             </div>
+          )
+        }
+      },
+      {
+        accessorKey: 'status',
+        header: 'Status',
+        cell: function ({ row }) {
+          return (
+            <Badge variant='outline' className='capitalize'>
+              {row.original.status}
+            </Badge>
+          )
+        }
+      },
+      {
+        accessorKey: 'remarks',
+        header: 'Remarks',
+        cell: function ({ row }) {
+          return (
+            <TooltipComponent value={row.original.remarks as string}>
+              <div className='capitalize line-clamp-1 text-ellipsis w-30'>
+                {row.original.remarks}
+              </div>
+            </TooltipComponent>
           )
         }
       },
@@ -146,22 +174,24 @@ export function LeaveCateogriesTable({
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuItem
-                onClick={() =>
-                  toggleOpen?.(true, 'edit', {
-                    name: row.original.name,
-                    id: row.original.id
-                  })
-                }
+                onClick={() => toggleOpen?.(true, 'edit', { ...row.original })}
               >
                 <Pencil />
-                Edit info
+                Edit File
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() =>
-                  toggleOpen?.(true, 'delete', {
-                    name: row.original.name,
-                    id: row.original.id
-                  })
+                  toggleOpen?.(true, 'approve', { ...row.original })
+                }
+              >
+                <CheckCircle />
+                {row.original.status === 'approved'
+                  ? 'Disapproved'
+                  : 'Approved'}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() =>
+                  toggleOpen?.(true, 'delete', { ...row.original })
                 }
               >
                 <Trash />
@@ -198,7 +228,7 @@ export function LeaveCateogriesTable({
     <div className='w-full'>
       <div className='flex items-center py-4'>
         <Input
-          placeholder='Search categories...'
+          placeholder='Search leave name...'
           onChange={(event) => onSearch(event)}
           className='max-w-sm'
         />
@@ -233,7 +263,7 @@ export function LeaveCateogriesTable({
 
           <Button onClick={() => toggleOpen?.(true, 'add', null)}>
             <Plus className='w-5 h-5' />
-            Add Leave Categories
+            File a leave
           </Button>
         </div>
       </div>

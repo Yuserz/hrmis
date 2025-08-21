@@ -18,6 +18,8 @@ import { useShallow } from 'zustand/react/shallow'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { LeaveCategories } from '@/lib/types/leave_categories'
+import { isEqual } from 'lodash'
+import { toast } from 'sonner'
 
 type LeaveCategoriesForm = Pick<LeaveCategories, 'name' | 'id'>
 
@@ -51,6 +53,15 @@ export function EditLeaveCategoriesDialog(): JSX.Element {
   ): Promise<void> => {
     const { name } = categoriesData
     startTransition(async () => {
+      if (isEqual(name, data?.name)) {
+        toast.info('Info', {
+          description: 'No changes in data.'
+        })
+
+        toggleOpen?.(false, null, null)
+        return
+      }
+
       await editLeaveCategories({
         name: name as string,
         id: data?.id as string

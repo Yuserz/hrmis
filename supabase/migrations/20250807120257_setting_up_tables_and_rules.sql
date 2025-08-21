@@ -68,7 +68,7 @@ CREATE TABLE public.leave_credits (
 );
 
 -- Indexes for leave_credits table
-CREATE INDEX idx_leave_credits_user_id ON public.leave_credits(user_id);
+CREATE UNIQUE INDEX idx_leave_credits_user_id ON public.leave_credits(user_id);
 CREATE INDEX idx_leave_credits_archived_at ON public.leave_credits(archived_at);
 
 -- Leave Categories table
@@ -91,7 +91,7 @@ CREATE TABLE public.leave_applications (
     leave_id UUID REFERENCES leave_categories(id) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'disapproved')),
+    status TEXT NOT NULL CHECK (status IN ('pending', 'approved', 'disapproved' , 'cancelled')),
     remarks TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE,
@@ -482,12 +482,16 @@ CREATE POLICY admin_all_leave_credits ON public.leave_credits
 CREATE POLICY insert_leave_credits ON public.leave_credits
     FOR INSERT
     TO authenticated
-    WITH CHECK (user_id = auth.uid() AND archived_at IS NULL);
+    WITH CHECK (
+        ((user_id = auth.uid()) OR (( SELECT users_1.role
+         FROM users users_1
+        WHERE (users_1.id = auth.uid())) = 'admin'::text))
+    );
 
 CREATE POLICY update_leave_credits ON public.leave_credits
     FOR UPDATE
     TO authenticated
-    WITH CHECK (user_id = auth.uid() AND archived_at IS NULL OR 
+    WITH CHECK (user_id = auth.uid() OR 
       ((( SELECT users_1.role
             FROM users users_1
             WHERE (users_1.id = auth.uid())) = 'admin'::text))
@@ -527,8 +531,7 @@ CREATE POLICY admin_all_leave_applications ON public.leave_applications
     USING (
       ((( SELECT users_1.role
             FROM users users_1
-            WHERE (users_1.id = auth.uid())) = 'admin'::text))
-      AND archived_at IS NULL)
+            WHERE (users_1.id = auth.uid())) = 'admin'::text)))
     WITH CHECK (
       ((( SELECT users_1.role
             FROM users users_1
@@ -610,3 +613,21 @@ CREATE POLICY employee_own_awards ON public.awards
     FOR SELECT
     TO authenticated
     USING (user_id = auth.uid() AND archived_at IS NULL);
+
+
+CREATE OR REPLACE FUNCTION decrement_update_credits(p_user_id UUID)
+RETURNS VOID AS $$
+DECLARE
+  current_credits INTEGER;
+BEGIN
+  SELECT credits INTO current_credits FROM leave_credits WHERE user_id = p_user_id;
+
+  IF current_credits = 0 THEN
+    RAISE EXCEPTION 'User no longer have leave credits left';
+  END IF;
+
+  UPDATE leave_credits 
+  SET credits = leave_credits.credits - 1 
+  WHERE leave_credits.user_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

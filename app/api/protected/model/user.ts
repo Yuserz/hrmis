@@ -203,9 +203,23 @@ export const signUp = async (body: SignUp) => {
     )
 
     if (userError) {
-      removeImageViaPath(supabase, getImagePath(body.avatar as string))
+      if (body.avatar) {
+        removeImageViaPath(supabase, getImagePath(body.avatar as string))
+      }
       await supabase.auth.admin.deleteUser(data.user.id)
       return badRequestResponse({ error: userError.message || '' })
+    }
+
+    const { error: creditUser } = await supabase
+      .from('leave_credits')
+      .insert({ user_id: data.user.id, credits: 10 })
+
+    if (creditUser) {
+      if (body.avatar) {
+        removeImageViaPath(supabase, getImagePath(body.avatar as string))
+      }
+      await supabase.auth.admin.deleteUser(data.user.id)
+      return badRequestResponse({ error: creditUser.message || '' })
     }
 
     return successResponse({

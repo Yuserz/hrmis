@@ -203,11 +203,11 @@ export type Database = {
         Row: {
           archived_at: string | null
           created_at: string | null
-          end_date: string
+          end_date: string | Date
           id: string
           leave_id: string
           remarks: string | null
-          start_date: string
+          start_date: string | Date
           status: string
           updated_at: string | null
           user_id: string | null

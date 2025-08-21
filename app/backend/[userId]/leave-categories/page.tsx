@@ -1,4 +1,5 @@
 import { JSX } from 'react'
+import { Container } from '@/components/custom/Container'
 import { LeaveCateogriesTable } from './components/LeaveCategoriesTable'
 import { AddLeaveCategoriesDialog } from './components/AddCategoriesDialog'
 import { EditLeaveCategoriesDialog } from './components/EditCategoriesDialog'
@@ -13,11 +14,14 @@ export default async function LeaveCategories({
 }): Promise<JSX.Element> {
   const { page, search } = await searchParams
   const response = await getLeaveCategories(
-    `?page=${page}&perPage=2&search=${search}&sortBy=created_at`
+    `?page=${page}&perPage=10&search=${search}&sortBy=created_at`
   )
 
   return (
-    <div>
+    <Container
+      title='Leave Categories'
+      description='You can add all leave categories here'
+    >
       <LeaveCateogriesTable
         {...{
           leave_categories:
@@ -31,6 +35,6 @@ export default async function LeaveCategories({
       <AddLeaveCategoriesDialog />
       <EditLeaveCategoriesDialog />
       <DeleteLeaveCategoryDialog />
-    </div>
+    </Container>
   )
 }

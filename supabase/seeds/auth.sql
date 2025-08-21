@@ -44,9 +44,10 @@ WITH new_user AS (
     )
   )
   RETURNING id
-)
+),
 
-INSERT INTO public.users (
+updated_user AS (
+  INSERT INTO public.users (
   id,
   email,
   employee_id,
@@ -66,6 +67,20 @@ DO UPDATE SET
   employee_id = EXCLUDED.employee_id,
   role = EXCLUDED.role,
   username = EXCLUDED.username
+RETURNING id
+)
+
+INSERT INTO public.leave_credits (
+  user_id,
+  credits
+)
+SELECT
+  id,
+  10
+FROM updated_user
+ON CONFLICT (user_id)
+DO UPDATE SET
+  credits = EXCLUDED.credits
 RETURNING *;
 
 COMMIT;
