@@ -16,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { avatarName } from '@/helpers/avatarName'
 import { Controller } from 'react-hook-form'
 import { Label } from '@radix-ui/react-label'
 import { useForm } from 'react-hook-form'
@@ -124,6 +126,22 @@ export function EditUserDialog(): JSX.Element {
       <DialogContent className='sm:max-w-[40rem]'>
         <DialogHeader>
           <DialogTitle>Edit New User</DialogTitle>
+
+          <div className='flex items-center gap-2'>
+            <Avatar className='h-20 w-20 rounded-full'>
+              <AvatarImage
+                src={data?.avatar as string}
+                alt={data?.email as string}
+              />
+              <AvatarFallback className='rounded-lg text-2xl fill-primary bg-primary text-white font-semibold'>
+                {avatarName(data?.email as string)}
+              </AvatarFallback>
+            </Avatar>
+            <section>
+              <h1 className='font-medium'>{data?.email}</h1>
+              <h2 className='text-md'>{data?.username}</h2>
+            </section>
+          </div>
         </DialogHeader>
 
         <Input
