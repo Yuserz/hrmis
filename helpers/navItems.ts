@@ -1,5 +1,11 @@
 import { SideMenu } from '@/lib/types/menus'
-import { LayoutDashboard, Users, TowerControl, Plane } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Users,
+  TowerControl,
+  Plane,
+  FileText
+} from 'lucide-react'
 
 export const adminMenus = (id: string): SideMenu[] => {
   return [
@@ -7,6 +13,12 @@ export const adminMenus = (id: string): SideMenu[] => {
       title: 'Dashboard',
       url: `/backend/${id}/dashboard`,
       icon: LayoutDashboard,
+      isActive: true
+    },
+    {
+      title: 'Attendance',
+      url: `/backend/${id}/attendance`,
+      icon: FileText,
       isActive: true
     },
     {
