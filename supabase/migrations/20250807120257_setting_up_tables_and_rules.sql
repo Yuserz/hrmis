@@ -615,7 +615,7 @@ CREATE POLICY employee_own_awards ON public.awards
     USING (user_id = auth.uid() AND archived_at IS NULL);
 
 
-CREATE OR REPLACE FUNCTION decrement_update_credits(p_user_id UUID)
+CREATE OR REPLACE FUNCTION decrement_update_credits(p_user_id UUID, count_dates INTEGER)
 RETURNS VOID AS $$
 DECLARE
   current_credits INTEGER;
@@ -627,12 +627,12 @@ BEGIN
   END IF;
 
   UPDATE leave_credits 
-  SET credits = leave_credits.credits - 1 
+  SET credits = leave_credits.credits - count_dates
   WHERE leave_credits.user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE OR REPLACE FUNCTION increment_update_credits(p_user_id UUID)
+CREATE OR REPLACE FUNCTION increment_update_credits(p_user_id UUID, count_dates INTEGER)
 RETURNS VOID AS $$
 DECLARE
   current_credits INTEGER;
@@ -644,7 +644,7 @@ BEGIN
   END IF;
 
   UPDATE leave_credits 
-  SET credits = leave_credits.credits + 1
+  SET credits = leave_credits.credits + count_dates
   WHERE leave_credits.user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

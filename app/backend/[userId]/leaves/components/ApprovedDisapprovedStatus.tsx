@@ -6,6 +6,7 @@ import { DialogAlert } from '@/components/custom/DialogAlert'
 import { useRouter } from 'next/navigation'
 import { useShallow } from 'zustand/shallow'
 import { approveDisapprovestatus } from '@/services/leave_applications/leave-applications.services'
+import { convertFromAndToDate } from '@/helpers/convertFromAndToDate'
 
 export function ApproveDisapproveDialog(): JSX.Element {
   const [isPending, startTransition] = useTransition()
@@ -20,6 +21,11 @@ export function ApproveDisapproveDialog(): JSX.Element {
 
   const router = useRouter()
 
+  const countDates = convertFromAndToDate(
+    data?.start_date as string,
+    data?.end_date as string
+  )
+
   const resetVariables = (): void => {
     toggleOpen?.(false, null, null)
     router.refresh()
@@ -30,7 +36,8 @@ export function ApproveDisapproveDialog(): JSX.Element {
       await approveDisapprovestatus(
         'approved',
         data?.users?.id as string,
-        data?.id as string
+        data?.id as string,
+        countDates
       )
       resetVariables()
     })
@@ -41,7 +48,8 @@ export function ApproveDisapproveDialog(): JSX.Element {
       await approveDisapprovestatus(
         'disapproved',
         data?.users?.id as string,
-        data?.id as string
+        data?.id as string,
+        countDates
       )
       resetVariables()
     })

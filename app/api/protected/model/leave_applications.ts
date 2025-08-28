@@ -58,7 +58,8 @@ export const editLeaveRequest = async (
 export const approveDisapproveLeave = async (
   status: LeaveStatus,
   userId: string,
-  id: string
+  id: string,
+  countDates: number
 ) => {
   try {
     const supabase = await createClient()
@@ -67,7 +68,8 @@ export const approveDisapproveLeave = async (
       const { error: errorCredits } = await supabase.rpc(
         'increment_update_credits',
         {
-          p_user_id: userId
+          p_user_id: userId,
+          count_dates: countDates
         }
       )
 
@@ -86,7 +88,8 @@ export const approveDisapproveLeave = async (
       const { error: errorCredits } = await supabase.rpc(
         'decrement_update_credits',
         {
-          p_user_id: userId
+          p_user_id: userId,
+          count_dates: countDates
         }
       )
 

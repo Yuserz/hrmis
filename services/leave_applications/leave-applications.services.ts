@@ -69,7 +69,8 @@ export const getLeaveApplications = async (params: string) => {
 export const approveDisapprovestatus = async (
   status: LeaveStatus,
   userId: string,
-  id: string
+  id: string,
+  countDates: number
 ) => {
   try {
     const response = await axiosService.put(
@@ -77,6 +78,7 @@ export const approveDisapprovestatus = async (
       {
         status,
         userId,
+        countDates,
         type: 'update-leave-status'
       }
     )
