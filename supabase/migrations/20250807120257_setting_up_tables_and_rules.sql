@@ -631,3 +631,20 @@ BEGIN
   WHERE leave_credits.user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE FUNCTION increment_update_credits(p_user_id UUID)
+RETURNS VOID AS $$
+DECLARE
+  current_credits INTEGER;
+BEGIN
+  SELECT credits INTO current_credits FROM leave_credits WHERE user_id = p_user_id;
+
+  IF current_credits = 10 THEN
+    RAISE EXCEPTION 'Your leave credits is already full';
+  END IF;
+
+  UPDATE leave_credits 
+  SET credits = leave_credits.credits + 1
+  WHERE leave_credits.user_id = p_user_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

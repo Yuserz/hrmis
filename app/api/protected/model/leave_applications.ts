@@ -63,6 +63,25 @@ export const approveDisapproveLeave = async (
   try {
     const supabase = await createClient()
 
+    if (status === 'disapproved') {
+      const { error: errorCredits } = await supabase.rpc(
+        'increment_update_credits',
+        {
+          p_user_id: userId
+        }
+      )
+
+      if (errorCredits?.message === 'User no longer have leave credits left') {
+        return conflictRequestResponse({
+          error: errorCredits?.message
+        })
+      }
+
+      if (errorCredits) {
+        return generalErrorResponse({ error: errorCredits })
+      }
+    }
+
     if (status === 'approved') {
       const { error: errorCredits } = await supabase.rpc(
         'decrement_update_credits',
