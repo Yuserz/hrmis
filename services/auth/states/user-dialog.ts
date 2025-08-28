@@ -14,7 +14,9 @@ type UserDialogType =
 export type UserData = Pick<
   Users,
   'username' | 'role' | 'employee_id' | 'avatar' | 'email' | 'id'
->
+> & {
+  credits?: number
+}
 
 export interface UserDialog {
   open: boolean
@@ -34,7 +36,8 @@ const initialState: UserDialog = {
     username: '',
     role: '',
     employee_id: '',
-    avatar: ''
+    avatar: '',
+    credits: 0
   },
   open: false,
   type: null

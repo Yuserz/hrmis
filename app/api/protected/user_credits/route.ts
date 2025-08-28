@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       await paginatedData<LeaveCreditsForm>(
         'leave_credits',
         supabase,
-        'id, credits, users!inner(id, email, username, role, employee_id, created_at, updated_at, archived_at), created_at, updated_at, archived_at',
+        'id, credits, users!inner(id, avatar, email, username, role, employee_id, created_at, updated_at, archived_at), created_at, updated_at, archived_at',
         { column: 'users.email', query: search },
         page,
         perPage,
@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     return successResponse({
       message: 'Successfully fetched user credits',
       data: {
-        users: data,
+        user_credits: data,
         count,
         totalPages,
         currentPage

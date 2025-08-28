@@ -1,11 +1,5 @@
 import { SideMenu } from '@/lib/types/menus'
-import {
-  LayoutDashboard,
-  Users,
-  TowerControl,
-  Plane,
-  Coins
-} from 'lucide-react'
+import { LayoutDashboard, Users, TowerControl, Plane } from 'lucide-react'
 
 export const adminMenus = (id: string): SideMenu[] => {
   return [
@@ -25,12 +19,6 @@ export const adminMenus = (id: string): SideMenu[] => {
       title: 'Leave Categories',
       url: `/backend/${id}/leave-categories?page=1`,
       icon: TowerControl,
-      isActive: true
-    },
-    {
-      title: 'User Credits',
-      url: `/backend/${id}/user-credits?page=1`,
-      icon: Coins,
       isActive: true
     },
     {

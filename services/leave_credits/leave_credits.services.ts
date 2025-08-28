@@ -3,7 +3,9 @@ import { axiosService } from '@/app/api/axios-client'
 import { LeaveCreditsForm } from '@/lib/types/leave_credits'
 import { Pagination } from '@/lib/types/pagination'
 
-type CreditsForm = LeaveCreditsForm & Pagination
+export interface CreditsForm extends Pagination {
+  user_credits: LeaveCreditsForm[]
+}
 
 export const fetchUserCredits = async (
   params: string
