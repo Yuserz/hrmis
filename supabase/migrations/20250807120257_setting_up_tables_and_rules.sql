@@ -339,7 +339,7 @@ BEGIN
     -- Drop temporary table
     DROP TABLE temp_biometrics;
 END;
-$$ language 'plpgsql';
+$$ language 'plpgsql' SECURITY DEFINER;
 
 -- Function to generate yearly awards
 CREATE OR REPLACE FUNCTION public.generate_yearly_awards(p_year INTEGER)

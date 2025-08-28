@@ -94,13 +94,14 @@ export const updateUserInfo = async ({
 }: UpdateUserInfo): Promise<void> => {
   try {
     const formData = new FormData()
-    formData.append('avatar', avatar[0])
+
     formData.append('email', email as string)
     formData.append('type', 'upload-avatar')
 
     let responseImage: AxiosResponse | null = null
 
     if (isArray(avatar)) {
+      formData.append('avatar', avatar[0])
       responseImage = await axiosService.post('/api/avatar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
