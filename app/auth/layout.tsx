@@ -1,4 +1,4 @@
-import { IdCard } from 'lucide-react'
+import { FolderKey } from 'lucide-react'
 import Image from 'next/image'
 
 export default function AuthLayout({
@@ -12,9 +12,9 @@ export default function AuthLayout({
         <div className='flex justify-center gap-2 md:justify-start'>
           <a href='#' className='flex items-center gap-2 font-medium'>
             <div className='flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground'>
-              <IdCard className='size-4' />
+              <FolderKey className='size-4' />
             </div>
-            FC Business Management
+            HR Management System
           </a>
         </div>
         <div className='flex flex-1 items-center justify-center'>

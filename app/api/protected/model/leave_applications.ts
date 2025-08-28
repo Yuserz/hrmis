@@ -11,9 +11,26 @@ type LeaveApplicationRequest = Omit<
   'created_at' | 'updated_at' | 'archived_at'
 >
 
-export const addLeaveRequest = async (data: LeaveApplicationRequest) => {
+export const addLeaveRequest = async (
+  data: LeaveApplicationRequest,
+  credsCount: number
+) => {
   try {
     const supabase = await createClient()
+
+    const { data: leaveCreds, error: leaveCredsError } = await supabase
+      .from('leave_credits')
+      .select('id, credits')
+      .eq('user_id', data?.user_id)
+      .maybeSingle()
+
+    if (leaveCredsError) {
+      return generalErrorResponse({ error: leaveCredsError.message })
+    }
+
+    if (credsCount > leaveCreds?.credits) {
+      return conflictRequestResponse({ error: 'Not enough credits, try again' })
+    }
 
     const { error } = await supabase.from('leave_applications').insert(data)
 
@@ -58,20 +75,42 @@ export const editLeaveRequest = async (
 export const approveDisapproveLeave = async (
   status: LeaveStatus,
   userId: string,
-  id: string
+  id: string,
+  countDates: number
 ) => {
   try {
     const supabase = await createClient()
+
+    if (status === 'disapproved') {
+      const { error: errorCredits } = await supabase.rpc(
+        'increment_update_credits',
+        {
+          p_user_id: userId,
+          count_dates: countDates
+        }
+      )
+
+      if (errorCredits) {
+        return generalErrorResponse({ error: errorCredits })
+      }
+    }
 
     if (status === 'approved') {
       const { error: errorCredits } = await supabase.rpc(
         'decrement_update_credits',
         {
-          p_user_id: userId
+          p_user_id: userId,
+          count_dates: countDates
         }
       )
 
       if (errorCredits?.message === 'User no longer have leave credits left') {
+        return conflictRequestResponse({
+          error: errorCredits?.message
+        })
+      }
+
+      if (errorCredits?.message === 'Not enough leave credits, try again') {
         return conflictRequestResponse({
           error: errorCredits?.message
         })
