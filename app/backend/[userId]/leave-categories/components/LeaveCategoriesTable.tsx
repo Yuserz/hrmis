@@ -103,13 +103,11 @@ export function LeaveCateogriesTable({
         header: 'Created At',
         cell: function ({ row }) {
           return (
-            <div className='flex items-center gap-2'>
-              <div className='capitalize font-semibold'>
-                {format(
-                  row.getValue('created_at'),
-                  "MMMM dd, yyyy hh:mm aaaaa'm'"
-                )}
-              </div>
+            <div className='capitalize'>
+              {format(
+                row.getValue('created_at'),
+                "MMMM dd, yyyy hh:mm aaaaa'm'"
+              )}
             </div>
           )
         }
@@ -119,15 +117,13 @@ export function LeaveCateogriesTable({
         header: 'Updated At',
         cell: function ({ row }) {
           return (
-            <div className='flex items-center gap-2'>
-              <div className='capitalize font-semibold'>
-                {row.getValue('updated_at')
-                  ? format(
-                      row.getValue('updated_at'),
-                      "MMMM dd, yyyy hh:mm aaaaa'm'"
-                    )
-                  : 'N/A'}
-              </div>
+            <div className='capitalize'>
+              {row.getValue('updated_at')
+                ? format(
+                    row.getValue('updated_at'),
+                    "MMMM dd, yyyy hh:mm aaaaa'm'"
+                  )
+                : 'N/A'}
             </div>
           )
         }
