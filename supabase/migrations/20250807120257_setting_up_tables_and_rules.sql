@@ -622,6 +622,10 @@ DECLARE
 BEGIN
   SELECT credits INTO current_credits FROM leave_credits WHERE user_id = p_user_id;
 
+  IF count_dates > current_credits THEN
+    RAISE EXCEPTION 'Not enough leave credits, try again';
+  END IF;
+
   IF current_credits = 0 THEN
     RAISE EXCEPTION 'User no longer have leave credits left';
   END IF;

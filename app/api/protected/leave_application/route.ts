@@ -60,6 +60,6 @@ export async function POST(req: NextRequest) {
   }
 
   if (body.type === 'add-leave-request') {
-    return addLeaveRequest(body.data)
+    return addLeaveRequest(body.data, body.credsCount)
   }
 }

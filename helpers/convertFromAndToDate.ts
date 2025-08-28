@@ -1,10 +1,4 @@
-export const convertFromAndToDate = (
-  startDate: string,
-  endDate: string
-): number => {
-  const fromDate = new Date(startDate as string)
-  const toDate = new Date(endDate as string)
-
+export const creditsCount = (fromDate: Date, toDate: Date): number => {
   let count = 0
   const currentDate = new Date(fromDate.getTime())
 
@@ -19,4 +13,14 @@ export const convertFromAndToDate = (
   }
 
   return count
+}
+
+export const convertFromAndToDate = (
+  startDate: string,
+  endDate: string
+): number => {
+  const fromDate = new Date(startDate as string)
+  const toDate = new Date(endDate as string)
+
+  return creditsCount(fromDate, toDate)
 }

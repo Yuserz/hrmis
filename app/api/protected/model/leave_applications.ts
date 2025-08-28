@@ -11,9 +11,26 @@ type LeaveApplicationRequest = Omit<
   'created_at' | 'updated_at' | 'archived_at'
 >
 
-export const addLeaveRequest = async (data: LeaveApplicationRequest) => {
+export const addLeaveRequest = async (
+  data: LeaveApplicationRequest,
+  credsCount: number
+) => {
   try {
     const supabase = await createClient()
+
+    const { data: leaveCreds, error: leaveCredsError } = await supabase
+      .from('leave_credits')
+      .select('id, credits')
+      .eq('user_id', data?.user_id)
+      .maybeSingle()
+
+    if (leaveCredsError) {
+      return generalErrorResponse({ error: leaveCredsError.message })
+    }
+
+    if (credsCount > leaveCreds?.credits) {
+      return conflictRequestResponse({ error: 'Not enough credits, try again' })
+    }
 
     const { error } = await supabase.from('leave_applications').insert(data)
 
@@ -73,12 +90,6 @@ export const approveDisapproveLeave = async (
         }
       )
 
-      if (errorCredits?.message === 'User no longer have leave credits left') {
-        return conflictRequestResponse({
-          error: errorCredits?.message
-        })
-      }
-
       if (errorCredits) {
         return generalErrorResponse({ error: errorCredits })
       }
@@ -94,6 +105,12 @@ export const approveDisapproveLeave = async (
       )
 
       if (errorCredits?.message === 'User no longer have leave credits left') {
+        return conflictRequestResponse({
+          error: errorCredits?.message
+        })
+      }
+
+      if (errorCredits?.message === 'Not enough leave credits, try again') {
         return conflictRequestResponse({
           error: errorCredits?.message
         })

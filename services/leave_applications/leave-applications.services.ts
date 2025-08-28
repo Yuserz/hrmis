@@ -9,12 +9,16 @@ type LeaveFileRequest = Omit<
   'created_at' | 'updated_at' | 'archived_at' | 'id'
 >
 
-export const addLeaveRequest = async (data: LeaveFileRequest) => {
+export const addLeaveRequest = async (
+  data: LeaveFileRequest,
+  credsCount: number
+) => {
   try {
     const response = await axiosService.post(
       `/api/protected/leave_application`,
       {
         data,
+        credsCount,
         type: 'add-leave-request'
       }
     )
@@ -24,6 +28,12 @@ export const addLeaveRequest = async (data: LeaveFileRequest) => {
     })
   } catch (e) {
     if (axios.isAxiosError(e)) {
+      if (e.response?.data.error === 'Not enough credits, try again') {
+        toast.error('ERROR!', {
+          description: e.response?.data.error
+        })
+        return
+      }
       throw e.response?.data.error
     }
   }
@@ -89,6 +99,11 @@ export const approveDisapprovestatus = async (
   } catch (e) {
     if (axios.isAxiosError(e)) {
       if (e.response?.data.error === 'User no longer have leave credits left') {
+        toast.error('ERROR!', { description: e.response?.data.error })
+        return
+      }
+
+      if (e.response?.data.error === 'Not enough leave credits, try again') {
         toast.error('ERROR!', { description: e.response?.data.error })
         return
       }

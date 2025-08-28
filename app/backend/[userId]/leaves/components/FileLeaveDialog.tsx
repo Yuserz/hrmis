@@ -32,6 +32,7 @@ import { LeaveApplicationsFormData } from '@/lib/types/leave_application'
 import { LeaveCategories } from '@/lib/types/leave_categories'
 import { addLeaveRequest } from '@/services/leave_applications/leave-applications.services'
 import { DateRange } from 'react-day-picker'
+import { creditsCount } from '@/helpers/convertFromAndToDate'
 
 interface FileLeaveDialog {
   category: Pick<LeaveCategories, 'name' | 'id'>[]
@@ -85,6 +86,11 @@ export function FileLeaveDialog({ category }: FileLeaveDialog): JSX.Element {
       const startDate = data.dateRange?.from
       const endDate = data.dateRange?.to
 
+      const credsCount = creditsCount(
+        new Date(startDate as Date),
+        new Date(endDate as Date)
+      )
+
       const newData = {
         leave_id,
         user_id: state.id,
@@ -94,7 +100,7 @@ export function FileLeaveDialog({ category }: FileLeaveDialog): JSX.Element {
         end_date: new Date(endDate as Date).toISOString()
       }
 
-      await addLeaveRequest(newData as typeof newData)
+      await addLeaveRequest(newData as typeof newData, credsCount)
       resetVariables()
     })
   }
