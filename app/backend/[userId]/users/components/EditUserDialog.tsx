@@ -16,11 +16,14 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { avatarName } from '@/helpers/avatarName'
 import { Controller } from 'react-hook-form'
 import { Label } from '@radix-ui/react-label'
 import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 import { CustomButton } from '@/components/custom/CustomButton'
 import { useUserDialog } from '@/services/auth/states/user-dialog'
 import { UserForm } from '@/lib/types/users'
@@ -29,6 +32,7 @@ import { updateUserInfo } from '@/services/users/users.services'
 import { useShallow } from 'zustand/react/shallow'
 import { roleTypes } from '@/app/auth/sign-in/helpers/constants'
 import { ImageUpload } from '@/components/custom/ImageUpload'
+import { toPercentage } from '@/helpers/convertToPercent'
 import { isEqual } from 'lodash'
 import { toast } from 'sonner'
 
@@ -124,6 +128,31 @@ export function EditUserDialog(): JSX.Element {
       <DialogContent className='sm:max-w-[40rem]'>
         <DialogHeader>
           <DialogTitle>Edit New User</DialogTitle>
+
+          <div className='flex items-center gap-2'>
+            <Avatar className='h-20 w-20 rounded-full'>
+              <AvatarImage
+                src={data?.avatar as string}
+                alt={data?.email as string}
+                className='object-cover'
+              />
+              <AvatarFallback className='rounded-lg text-2xl fill-primary bg-primary text-white font-semibold'>
+                {avatarName(data?.email as string)}
+              </AvatarFallback>
+            </Avatar>
+            <section>
+              <h1 className='font-medium'>{data?.email}</h1>
+              <h2 className='text-md'>{data?.username}</h2>
+            </section>
+          </div>
+
+          <div className='shadow-sm p-4 rounded-sm space-y-3'>
+            <h1 className='font-medium'>Leave Credits</h1>
+            <section className='flex items-center gap-2'>
+              <Progress value={toPercentage(data?.credits as number, 10)} />
+              <span className='text-sm'>{data?.credits}/10</span>
+            </section>
+          </div>
         </DialogHeader>
 
         <Input

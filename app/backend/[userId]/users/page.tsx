@@ -1,13 +1,13 @@
 import { JSX } from 'react'
-import { fetchUsers } from '@/services/users/users.services'
-import { Users } from '@/lib/types/users'
 import { RevokedReinstateDialog } from './components/RevokeReinstateDialog'
 import { UsersTable } from './components/UsersTable'
 import { EditUserDialog } from './components/EditUserDialog'
 import { AddUserDialog } from './components/AddUserDialog'
 import { Container } from '@/components/custom/Container'
 import { UpdatePassword } from './components/UpdatePasswordDialog'
+import { fetchUserCredits } from '@/services/leave_credits/leave_credits.services'
 import { VerifyEmail } from './components/VerifyEmailDialog'
+import { LeaveCreditsForm } from '@/lib/types/leave_credits'
 
 export default async function UsersPage({
   searchParams
@@ -15,7 +15,8 @@ export default async function UsersPage({
   searchParams: Promise<{ page: string; search: string }>
 }): Promise<JSX.Element> {
   const { page, search } = await searchParams
-  const response = await fetchUsers(
+
+  const response = await fetchUserCredits(
     `?page=${page}&perPage=10&search=${search}&sortBy=created_at`
   )
 
@@ -26,7 +27,7 @@ export default async function UsersPage({
     >
       <UsersTable
         {...{
-          users: (response?.users as Users[]) || [],
+          user_credits: (response?.user_credits as LeaveCreditsForm[]) || [],
           totalPages: response?.totalPages as number,
           currentPage: response?.currentPage as number,
           count: response?.count as number

@@ -41,7 +41,6 @@ import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Users } from '@/lib/types/users'
 import { useAuth } from '@/services/auth/states/auth-state'
 import { useUserDialog } from '@/services/auth/states/user-dialog'
 import { useShallow } from 'zustand/shallow'
@@ -50,13 +49,16 @@ import { Pagination } from '@/components/custom/Pagination'
 import { Pagination as PaginationType } from '@/lib/types/pagination'
 import { useRouter, usePathname } from 'next/navigation'
 import { debounce } from 'lodash'
+import { LeaveCreditsForm } from '@/lib/types/leave_credits'
+import { Progress } from '@/components/ui/progress'
+import { toPercentage } from '@/helpers/convertToPercent'
 
 interface UserTableData extends PaginationType {
-  users: Users[]
+  user_credits: LeaveCreditsForm[]
 }
 
 export function UsersTable({
-  users: data,
+  user_credits: data,
   totalPages,
   currentPage,
   count
@@ -96,7 +98,7 @@ export function UsersTable({
 
   const state = useAuth()
 
-  const columns: ColumnDef<Users>[] = React.useMemo(
+  const columns: ColumnDef<LeaveCreditsForm>[] = React.useMemo(
     () => [
       {
         accessorKey: 'username',
@@ -107,30 +109,47 @@ export function UsersTable({
               <Avatar>
                 <AvatarImage
                   className='object-cover'
-                  src={row.original?.avatar ?? ''}
-                  alt={row.original?.email}
+                  src={row.original?.users.avatar ?? ''}
+                  alt={row.original?.users?.email}
                 />
                 <AvatarFallback className='rounded-lg fill-blue-500 bg-blue-400 text-white font-semibold capitalize'>
-                  {avatarName(row.original?.email)}
+                  {avatarName(row.original?.users?.email)}
                 </AvatarFallback>
               </Avatar>
               <div className='capitalize font-semibold'>
-                {row.getValue('username')}
+                {row.original?.users?.username}
               </div>
             </div>
           )
         }
       },
       {
-        accessorKey: 'employee_id',
-        header: 'Employee ID',
-        cell: ({ row }) => <div>{row.getValue('employee_id') ?? 'N/A'}</div>
+        accessorKey: 'credits',
+        header: 'Leave Credits',
+        cell: ({ row }) => {
+          const creds = row.original.credits
+          const totalCreds = toPercentage(creds, 10)
+
+          return (
+            <div className='flex items-center gap-2'>
+              <Progress value={totalCreds} />
+              <span className='font-semibold text-sm'>{creds}/10</span>
+            </div>
+          )
+        }
       },
       {
         accessorKey: 'email',
         header: 'Email',
         cell: ({ row }) => (
-          <div className='lowercase'>{row.getValue('email')}</div>
+          <div className='lowercase'>{row.original?.users?.email}</div>
+        )
+      },
+      {
+        accessorKey: 'employee_id',
+        header: 'Employee ID',
+        cell: ({ row }) => (
+          <div>{row.original?.users?.employee_id ?? 'N/A'}</div>
         )
       },
       {
@@ -138,7 +157,7 @@ export function UsersTable({
         header: 'Role',
         cell: ({ row }) => (
           <Badge className='lowercase' variant='outline'>
-            {row.getValue('role')}
+            {row.original?.users?.role}
           </Badge>
         )
       },
@@ -147,7 +166,7 @@ export function UsersTable({
         header: 'Status',
         cell: ({ row }) => (
           <Badge className='lowercase' variant='outline'>
-            {row.getValue('archived_at') ? 'Revoked' : 'active'}
+            {row.original?.users?.archived_at ? 'Revoked' : 'active'}
           </Badge>
         )
       },
@@ -156,7 +175,10 @@ export function UsersTable({
         header: 'Created At',
         cell: ({ row }) => (
           <div className='capitalize'>
-            {format(row.getValue('created_at'), "MMMM dd, yyyy hh:mm aaaaa'm'")}
+            {format(
+              row.original.users?.created_at as string,
+              "MMMM dd, yyyy hh:mm aaaaa'm'"
+            )}
           </div>
         )
       },
@@ -165,9 +187,9 @@ export function UsersTable({
         header: 'Updated At',
         cell: ({ row }) => (
           <div className='capitalize'>
-            {row.getValue('updated_at')
+            {row.original.users?.updated_at
               ? format(
-                  row.getValue('updated_at'),
+                  row.original?.users?.updated_at,
                   "MMMM dd, yyyy hh:mm aaaaa'm'"
                 )
               : 'N/A'}
@@ -187,14 +209,19 @@ export function UsersTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              {['employee'].includes(row.original.role) && (
+              {['employee'].includes(row.original?.users?.role) && (
                 <DropdownMenuItem>
                   <File />
                   View PDS
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem
-                onClick={() => toggleOpen?.(true, 'edit', { ...row.original })}
+                onClick={() =>
+                  toggleOpen?.(true, 'edit', {
+                    ...row.original?.users,
+                    credits: row.original.credits
+                  })
+                }
               >
                 <Pencil />
                 Edit info
@@ -205,7 +232,7 @@ export function UsersTable({
                     toggleOpen?.(
                       true,
                       row.original.archived_at ? 'reinstate' : 'revoked',
-                      { ...row.original }
+                      { ...row.original?.users }
                     )
                   }
                 >
