@@ -39,7 +39,7 @@ export function LoginForm({
         setUserInfo(data as UserForm)
 
         if (data?.role === 'staff') {
-          router.push(`/staff/${data?.id}/user`)
+          router.push(`/staff/${data?.id}/users?page=1`)
 
           return
         }
