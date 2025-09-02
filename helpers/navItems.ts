@@ -56,9 +56,9 @@ export const employeeMenus = (id: string): SideMenu[] => {
 export const staffMenus = (id: string): SideMenu[] => {
   return [
     {
-      title: 'Dashboard',
-      url: `/backend/${id}/dashboard`,
-      icon: LayoutDashboard,
+      title: 'Users',
+      url: `/backend/${id}/users?page=1`,
+      icon: Users,
       isActive: true
     }
   ]

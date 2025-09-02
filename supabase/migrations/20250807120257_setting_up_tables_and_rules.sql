@@ -469,6 +469,23 @@ CREATE POLICY employee_own_pds ON public.pds
     USING (user_id = auth.uid() AND archived_at IS NULL)
     WITH CHECK (user_id = auth.uid());
 
+
+CREATE POLICY staff_all_leave_credits ON public.leave_credits
+    FOR ALL
+    TO authenticated
+    USING (
+      ((( SELECT users_1.role
+            FROM users users_1
+            WHERE (users_1.id = auth.uid())) = 'staff'::text))
+      AND archived_at IS NULL)
+    WITH CHECK(
+      ((( SELECT users_1.role
+            FROM users users_1
+            WHERE (users_1.id = auth.uid())) = 'staff'::text))
+      AND archived_at IS NULL
+    );
+    
+
 -- Leave Credits table policies
 CREATE POLICY admin_all_leave_credits ON public.leave_credits
     FOR SELECT
