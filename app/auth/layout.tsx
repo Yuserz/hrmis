@@ -26,7 +26,7 @@ export default function AuthLayout({
           width={800}
           height={800}
           quality={90}
-          src='/images/HR-management.webp'
+          src='/images/HR-management.jpg'
           alt='Image'
           className='absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale'
         />
