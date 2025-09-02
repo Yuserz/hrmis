@@ -1,4 +1,5 @@
 import { JSX } from 'react'
+import { UploadDialog } from './components/UploadDialog'
 import { AttendanceTable } from './components/AttendanceTable'
 import { Container } from '@/components/custom/Container'
 
@@ -11,6 +12,8 @@ export default async function AttendancePage(): Promise<JSX.Element> {
       <AttendanceTable
         {...{ data: [], totalPages: 1, currentPage: 1, count: 1 }}
       />
+
+      <UploadDialog />
     </Container>
   )
 }

@@ -13,7 +13,7 @@ import {
   useReactTable,
   VisibilityState
 } from '@tanstack/react-table'
-import { ChevronDown, Plus, MoreHorizontal, Pencil, Trash } from 'lucide-react'
+import { ChevronDown, Plus, MoreHorizontal, Pencil } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -32,13 +32,13 @@ import {
 } from '@/components/ui/table'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
-import { useLeaveCategoriesDialog } from '@/services/leave_categories/states/leave-categories-dialog'
 import { useShallow } from 'zustand/shallow'
 import { Pagination } from '@/components/custom/Pagination'
 import { Pagination as PaginationType } from '@/lib/types/pagination'
 import { useRouter, usePathname } from 'next/navigation'
 import { debounce } from 'lodash'
 import { LeaveCategories } from '@/lib/types/leave_categories'
+import { useUploadAttendanceDialog } from '@/services/attendance/state/attendance-dialog'
 
 interface AttendanceTableData extends PaginationType {
   data: []
@@ -58,7 +58,7 @@ export function AttendanceTable({
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-  const { toggleOpen } = useLeaveCategoriesDialog(
+  const { toggleOpen } = useUploadAttendanceDialog(
     useShallow((state) => ({ toggleOpen: state.toggleOpenDialog }))
   )
 
@@ -122,7 +122,7 @@ export function AttendanceTable({
         id: 'actions',
         header: 'Actions',
         enableHiding: false,
-        cell: ({ row }) => (
+        cell: () => (
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
               <Button variant='ghost' className='h-8 w-8 p-0'>
@@ -131,34 +131,16 @@ export function AttendanceTable({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
-              <DropdownMenuItem
-                onClick={() =>
-                  toggleOpen?.(true, 'edit', {
-                    name: row.original.name,
-                    id: row.original.id
-                  })
-                }
-              >
+              <DropdownMenuItem>
                 <Pencil />
                 Edit info
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() =>
-                  toggleOpen?.(true, 'delete', {
-                    name: row.original.name,
-                    id: row.original.id
-                  })
-                }
-              >
-                <Trash />
-                Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )
       }
     ],
-    [toggleOpen]
+    []
   )
 
   const table = useReactTable({
@@ -217,7 +199,7 @@ export function AttendanceTable({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button onClick={() => toggleOpen?.(true, 'add', null)}>
+          <Button onClick={() => toggleOpen?.(true, 'upload')}>
             <Plus className='w-5 h-5' />
             import biometrics
           </Button>

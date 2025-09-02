@@ -109,7 +109,7 @@ CREATE INDEX idx_leave_applications_archived_at ON public.leave_applications(arc
 -- Attendance table for monthly attendance records
 CREATE TABLE public.attendance (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    employee_id TEXT REFERENCES users(employee_id) ON DELETE CASCADE,
+    employee_id TEXT REFERENCES users(employee_id) ON DELETE CASCADE NOT NULL,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     month DATE NOT NULL,
     days_present INTEGER NOT NULL,
