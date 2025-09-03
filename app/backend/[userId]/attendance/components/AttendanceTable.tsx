@@ -86,6 +86,19 @@ export function AttendanceTable({
   const columns: ColumnDef<LeaveCategories>[] = React.useMemo(
     () => [
       {
+        accessorKey: 'employee_id',
+        header: 'Employee ID',
+        cell: function ({ row }) {
+          return (
+            <div className='flex items-center gap-2'>
+              <div className='capitalize font-semibold'>
+                {row.getValue('employee_id')}
+              </div>
+            </div>
+          )
+        }
+      },
+      {
         accessorKey: 'name',
         header: 'email',
         cell: function ({ row }) {
@@ -115,6 +128,22 @@ export function AttendanceTable({
         cell: function ({ row }) {
           return (
             <div className='capitalize'>{row.getValue('days_present')}</div>
+          )
+        }
+      },
+      {
+        accessorKey: 'days_absent',
+        header: 'Days Absent',
+        cell: function ({ row }) {
+          return <div className='capitalize'>{row.getValue('days_absent')}</div>
+        }
+      },
+      {
+        accessorKey: 'tardiness_count',
+        header: 'Tardiness Count',
+        cell: function ({ row }) {
+          return (
+            <div className='capitalize'>{row.getValue('tardiness_count')}</div>
           )
         }
       },
@@ -166,7 +195,7 @@ export function AttendanceTable({
     <div className='w-full'>
       <div className='flex items-center py-4'>
         <Input
-          placeholder='Search categories...'
+          placeholder='Search employee...'
           onChange={(event) => onSearch(event)}
           className='max-w-sm'
         />
