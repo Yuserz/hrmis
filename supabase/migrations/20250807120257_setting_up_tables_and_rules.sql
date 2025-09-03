@@ -35,6 +35,19 @@ CREATE INDEX idx_biometrics_employee_id ON public.biometrics(employee_id);
 CREATE INDEX idx_biometrics_timestamp ON public.biometrics(timestamp);
 CREATE INDEX idx_biometrics_type ON public.biometrics(type);
 
+CREATE TABLE public.attendance_summary (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    employee_id TEXT REFERENCES users(employee_id) ON DELETE CASCADE,
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+    total_hours INTEGER NOT NULL, -- 1=login, 2=logout, 15=manual login
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE INDEX idx_attendance_summary_employee_id ON public.attendance_summary(employee_id);
+CREATE INDEX idx_attendance_summary_timestamp ON public.attendance_summary(timestamp);
+CREATE INDEX idx_attendance_summary_total_hourse ON public.attendance_summary(total_hours);
+
 -- Personal Data Sheet (PDS) table based on CSC Form 212 Revised 2017
 CREATE TABLE public.pds (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
