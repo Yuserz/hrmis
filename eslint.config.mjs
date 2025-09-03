@@ -22,7 +22,7 @@ const eslintConfig = [
       'jsx-a11y/aria-unsupported-elements': 'warn',
       'jsx-a11y/role-has-required-aria-props': 'warn',
       'jsx-a11y/role-supports-aria-props': 'warn',
-      'no-console': ['error', { allow: ['error', 'info'] }],
+      'no-console': ['error', { allow: ['error', 'info', 'warn'] }],
       // Too restrictive, writing ugly code to defend against a very unlikely scenario: https://eslint.org/docs/rules/no-prototype-builtins
       'no-prototype-builtins': 'off',
       // https://basarat.gitbooks.io/typescript/docs/tips/defaultIsBad.html

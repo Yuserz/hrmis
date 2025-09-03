@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server'
 import { conflictRequestResponse } from '../../helpers/response'
+import { processBiometricData } from '../model/attendance'
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData()
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
     console.info(csvText)
   }
 
-  if (formData.get('type') === 'upload-bat') {
+  if (formData.get('type') === 'upload-dat') {
     const batFile = formData.get('file') as File | null
 
     if (!batFile) {
@@ -24,7 +25,6 @@ export async function POST(req: NextRequest) {
     }
 
     const batText = await batFile.text()
-
-    console.info(batText)
+    return processBiometricData(batText)
   }
 }

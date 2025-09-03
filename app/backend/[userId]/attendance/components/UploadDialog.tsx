@@ -109,8 +109,8 @@ export function UploadDialog(): JSX.Element {
             <input
               type='file'
               ref={batFileInputRef}
-              onChange={(e) => handleUploadFile(e, 'upload-bat')}
-              accept='.bat'
+              onChange={(e) => handleUploadFile(e, 'upload-dat')}
+              accept='.dat'
               hidden
             />
             <div
@@ -118,7 +118,7 @@ export function UploadDialog(): JSX.Element {
               className='cursor-pointer ring-2 ring-gray-500/20 hover:ring-blue-500 focus:ring-blue-500 rounded-sm p-4 flex flex-col items-center justify-center gap-1 text-center'
             >
               <FileText className='h-10 w-10 text-blue-500' />
-              <h1 className='font-bold'>BAT File</h1>
+              <h1 className='font-bold'>DAT File</h1>
               <p className='text-gray-500 text-sm'>
                 Upload btach processing script file
               </p>
