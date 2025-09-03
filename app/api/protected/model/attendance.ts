@@ -120,6 +120,7 @@ export async function processBiometricData(rawData: string) {
         const standardScans = scansWithTypes.filter((scan) => scan.type !== 15)
         if (standardScans.length > 0) {
           let dailyHours = 0
+
           for (let i = 0; i < standardScans.length - 1; i += 2) {
             if (
               standardScans[i].type === 1 &&
@@ -170,13 +171,6 @@ export async function processBiometricData(rawData: string) {
     for (let i = 0; i < finalRecords.length; i += batchSize) {
       const batch = finalRecords.slice(i, i + batchSize)
       const { error } = await supabase.from('biometrics').insert(batch)
-      if (error) {
-        return generalErrorResponse({ error: error.message })
-      }
-    }
-
-    for (const record of attendanceRecords) {
-      const { error } = await supabase.from('attendance').upsert(record)
       if (error) {
         return generalErrorResponse({ error: error.message })
       }

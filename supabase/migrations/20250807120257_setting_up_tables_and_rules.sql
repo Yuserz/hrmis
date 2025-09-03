@@ -117,7 +117,8 @@ CREATE TABLE public.attendance (
     -- tardiness_count INTEGER NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE,
-    archived_at TIMESTAMP WITH TIME ZONE
+    archived_at TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT idx_unique_combination UNIQUE (employee_id, month)
 );
 
 -- Indexes for attendance table
@@ -570,3 +571,69 @@ BEGIN
   WHERE leave_credits.user_id = p_user_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create a function to update attendance based on login/logout and days_absent
+CREATE OR REPLACE FUNCTION update_attendance_on_logout()
+RETURNS TRIGGER AS $$
+DECLARE
+    login_time TIMESTAMP WITH TIME ZONE;
+    total_days_in_month INTEGER;
+    day_count INTEGER;
+BEGIN
+    -- Dynamically get the total days in the month
+    SELECT EXTRACT(DAY FROM (DATE_TRUNC('month', NEW.timestamp) + INTERVAL '1 month - 1 day')) INTO total_days_in_month;
+
+    -- Check if the new record is a potential logout (next timestamp after a login)
+    IF NEW.type IN (1, 15) THEN
+        -- Find the previous login time for the same employee_id on the same day
+        SELECT timestamp INTO login_time
+        FROM biometrics
+        WHERE employee_id = NEW.employee_id
+          AND DATE(timestamp) = DATE(NEW.timestamp)
+          AND timestamp < NEW.timestamp
+          AND NOT EXISTS (
+              SELECT 1
+              FROM biometrics b2
+              WHERE b2.employee_id = NEW.employee_id
+                AND DATE(b2.timestamp) = DATE(NEW.timestamp)
+                AND b2.timestamp > biometrics.timestamp
+                AND b2.timestamp < NEW.timestamp
+          )
+        ORDER BY timestamp DESC
+        LIMIT 1;
+
+        IF login_time IS NOT NULL THEN
+            -- Count distinct days with login/logout pairs for this employee and month
+            SELECT COUNT(DISTINCT DATE(b.timestamp))
+            INTO day_count
+            FROM biometrics b
+            WHERE b.employee_id = NEW.employee_id
+              AND DATE_TRUNC('month', b.timestamp) = DATE_TRUNC('month', NEW.timestamp)
+              AND EXISTS (
+                  SELECT 1
+                  FROM biometrics b2
+                  WHERE b2.employee_id = b.employee_id
+                    AND DATE(b2.timestamp) = DATE(b.timestamp)
+                    AND b2.timestamp > b.timestamp
+              );
+
+            -- Update attendance for the month
+            INSERT INTO attendance (employee_id, user_id, month, days_present, days_absent)
+            VALUES (NEW.employee_id, (SELECT id FROM users WHERE employee_id = NEW.employee_id), 
+                    DATE_TRUNC('month', NEW.timestamp), day_count, total_days_in_month - day_count)
+            ON CONFLICT (employee_id, month) DO UPDATE
+            SET days_present = day_count,
+                days_absent = GREATEST(total_days_in_month - day_count, 0),
+                updated_at = CURRENT_TIMESTAMP;
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the trigger
+CREATE TRIGGER trigger_update_attendance
+AFTER INSERT ON biometrics
+FOR EACH ROW
+EXECUTE FUNCTION update_attendance_on_logout();
