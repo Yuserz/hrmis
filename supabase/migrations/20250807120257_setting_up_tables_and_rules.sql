@@ -114,7 +114,7 @@ CREATE TABLE public.attendance (
     month DATE NOT NULL,
     days_present INTEGER NOT NULL,
     days_absent INTEGER NOT NULL,
-    tardiness_count INTEGER NOT NULL,
+    -- tardiness_count INTEGER NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE,
     archived_at TIMESTAMP WITH TIME ZONE
@@ -125,7 +125,7 @@ CREATE INDEX idx_attendance_employee_id ON public.attendance(employee_id);
 CREATE INDEX idx_attendance_user_id ON public.attendance(user_id);
 CREATE INDEX idx_attendance_month ON public.attendance(month);
 CREATE INDEX idx_attendance_days_absent ON public.attendance(days_absent);
-CREATE INDEX idx_attendance_tardiness_count ON public.attendance(tardiness_count);
+-- CREATE INDEX idx_attendance_tardiness_count ON public.attendance(tardiness_count);
 CREATE INDEX idx_attendance_archived_at ON public.attendance(archived_at);
 
 -- Certificates table for storing generated certificate data
@@ -255,7 +255,7 @@ BEGIN
     FROM public.attendance a
     WHERE EXTRACT(YEAR FROM a.month) = p_year
     AND a.days_absent = 0
-    AND a.tardiness_count = 0
+    -- AND a.tardiness_count = 0
     AND a.archived_at IS NULL
     GROUP BY a.user_id
     HAVING COUNT(*) = 12;
