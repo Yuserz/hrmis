@@ -27,7 +27,8 @@ CREATE TABLE public.biometrics (
     timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
     type INTEGER NOT NULL CHECK (type IN (1, 2, 15)), -- 1=login, 2=logout, 15=manual login
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE
+    updated_at TIMESTAMP WITH TIME ZONE,
+    archived_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Indexes for biometrics table
@@ -37,14 +38,15 @@ CREATE INDEX idx_biometrics_type ON public.biometrics(type);
 
 CREATE TABLE public.attendance_summary (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    employee_id TEXT REFERENCES users(employee_id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
-    total_hours INTEGER NOT NULL, -- 1=login, 2=logout, 15=manual login
+    total_hours INTEGER NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE
+    updated_at TIMESTAMP WITH TIME ZONE,
+    archived_at TIMESTAMP WITH TIME ZONE
 );
 
-CREATE INDEX idx_attendance_summary_employee_id ON public.attendance_summary(employee_id);
+CREATE INDEX idx_attendance_summary_employee_id ON public.attendance_summary(user_id);
 CREATE INDEX idx_attendance_summary_timestamp ON public.attendance_summary(timestamp);
 CREATE INDEX idx_attendance_summary_total_hourse ON public.attendance_summary(total_hours);
 
@@ -288,6 +290,7 @@ ALTER TABLE public.leave_applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.attendance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.certificates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.awards ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.attendance_summary ENABLE ROW LEVEL SECURITY;
 
 -- Users table policies
 CREATE POLICY admin_all_users ON public.users
@@ -475,6 +478,27 @@ CREATE POLICY employee_own_leave_applications ON public.leave_applications
     TO authenticated
     USING (user_id = auth.uid() AND archived_at IS NULL)
     WITH CHECK (user_id = auth.uid());
+
+
+-- Attendance table policies
+CREATE POLICY admin_all_attendance_summary ON public.attendance_summary
+    FOR ALL
+    TO authenticated
+    USING (
+      ((( SELECT users_1.role
+            FROM users users_1
+            WHERE (users_1.id = auth.uid())) = 'admin'::text))
+       AND archived_at IS NULL)
+    WITH CHECK (
+      ((( SELECT users_1.role
+            FROM users users_1
+            WHERE (users_1.id = auth.uid())) = 'admin'::text))
+    );
+
+CREATE POLICY employee_own_attendance_summary ON public.attendance_summary
+    FOR SELECT
+    TO authenticated
+    USING (user_id = auth.uid() AND archived_at IS NULL);
 
 -- Attendance table policies
 CREATE POLICY admin_all_attendance ON public.attendance

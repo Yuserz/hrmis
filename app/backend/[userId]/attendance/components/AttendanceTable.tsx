@@ -13,13 +13,12 @@ import {
   useReactTable,
   VisibilityState
 } from '@tanstack/react-table'
-import { ChevronDown, Plus, MoreHorizontal, Pencil } from 'lucide-react'
+import { ChevronDown, Plus } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuItem
+  DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import {
@@ -37,11 +36,11 @@ import { Pagination } from '@/components/custom/Pagination'
 import { Pagination as PaginationType } from '@/lib/types/pagination'
 import { useRouter, usePathname } from 'next/navigation'
 import { debounce } from 'lodash'
-import { LeaveCategories } from '@/lib/types/leave_categories'
 import { useUploadAttendanceDialog } from '@/services/attendance/state/attendance-dialog'
+import { AttendanceDB } from '@/lib/types/attendance'
 
 interface AttendanceTableData extends PaginationType {
-  data: []
+  data: AttendanceDB[]
 }
 
 export function AttendanceTable({
@@ -83,7 +82,7 @@ export function AttendanceTable({
     onDebounce(value)
   }
 
-  const columns: ColumnDef<LeaveCategories>[] = React.useMemo(
+  const columns: ColumnDef<AttendanceDB>[] = React.useMemo(
     () => [
       {
         accessorKey: 'employee_id',
@@ -92,23 +91,17 @@ export function AttendanceTable({
           return (
             <div className='flex items-center gap-2'>
               <div className='capitalize font-semibold'>
-                {row.getValue('employee_id')}
+                {row.original.users?.employee_id}
               </div>
             </div>
           )
         }
       },
       {
-        accessorKey: 'name',
-        header: 'email',
+        accessorKey: 'email',
+        header: 'Email',
         cell: function ({ row }) {
-          return (
-            <div className='flex items-center gap-2'>
-              <div className='capitalize font-semibold'>
-                {row.getValue('email')}
-              </div>
-            </div>
-          )
+          return <div className='capitalize'>{row.original.users?.email}</div>
         }
       },
       {
@@ -117,7 +110,7 @@ export function AttendanceTable({
         cell: function ({ row }) {
           return (
             <div className='capitalize'>
-              {format(row.getValue('month'), "MMMM dd, yyyy hh:mm aaaaa'm'")}
+              {format(row.getValue('month'), 'MMMM')}
             </div>
           )
         }
@@ -133,40 +126,40 @@ export function AttendanceTable({
       },
       {
         accessorKey: 'days_absent',
-        header: 'Days Absent',
+        header: 'Days in a month',
         cell: function ({ row }) {
           return <div className='capitalize'>{row.getValue('days_absent')}</div>
         }
       },
       {
-        accessorKey: 'tardiness_count',
-        header: 'Tardiness Count',
+        accessorKey: 'created_at',
+        header: 'Created At',
         cell: function ({ row }) {
           return (
-            <div className='capitalize'>{row.getValue('tardiness_count')}</div>
+            <div className='capitalize'>
+              {format(
+                row.getValue('created_at'),
+                "MMMM dd, yyyy hh:mm aaaaa'm'"
+              )}
+            </div>
           )
         }
       },
       {
-        id: 'actions',
-        header: 'Actions',
-        enableHiding: false,
-        cell: () => (
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant='ghost' className='h-8 w-8 p-0'>
-                <span className='sr-only'>Open menu</span>
-                <MoreHorizontal />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align='end'>
-              <DropdownMenuItem>
-                <Pencil />
-                Edit info
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )
+        accessorKey: 'updated_at',
+        header: 'Updated At',
+        cell: function ({ row }) {
+          return (
+            <div className='capitalize'>
+              {row.getValue('updated_at')
+                ? format(
+                    row.getValue('updated_at'),
+                    "MMMM dd, yyyy hh:mm aaaaa'm'"
+                  )
+                : 'N/A'}
+            </div>
+          )
+        }
       }
     ],
     []

@@ -40,3 +40,17 @@ export const uploadCSVOrBatFile = async (file: File, type: UploadType) => {
     }
   }
 }
+
+export const getAttendance = async (params: string) => {
+  try {
+    const response = await axiosService.get(
+      `/api/protected/attendance${params}`
+    )
+
+    return response.data.data
+  } catch (e) {
+    if (axios.isAxiosError(e)) {
+      throw e.response?.data.error
+    }
+  }
+}

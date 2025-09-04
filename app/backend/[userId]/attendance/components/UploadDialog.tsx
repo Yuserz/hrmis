@@ -14,6 +14,7 @@ import { useShallow } from 'zustand/shallow'
 import { Button } from '@/components/ui/button'
 import { CustomButton } from '@/components/custom/CustomButton'
 import { useUploadAttendanceDialog } from '@/services/attendance/state/attendance-dialog'
+import { useRouter } from 'next/navigation'
 import {
   uploadCSVOrBatFile,
   UploadType
@@ -39,6 +40,7 @@ export function UploadDialog(): JSX.Element {
 
   const csvFileInputRef = useRef<HTMLInputElement>(null)
   const batFileInputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
 
   const handleUploadFile = (
     event: ChangeEvent<HTMLInputElement>,
@@ -50,6 +52,7 @@ export function UploadDialog(): JSX.Element {
 
   const resetVariables = (): void => {
     setUploadedFile({ file: null, type: 'upload-csv' })
+    router.refresh()
 
     if (csvFileInputRef.current) {
       csvFileInputRef.current.value = ''
@@ -127,9 +130,11 @@ export function UploadDialog(): JSX.Element {
         </main>
 
         {!!uploadedFile.file && (
-          <span className='bg-blue-500 text-sm py-2 px-3 rounded-md text-white flex items-center gap-2 font-medium'>
-            <FileText className='w-5 h-5 text-white' />
-            {uploadedFile?.file?.name}
+          <span className='bg-blue-500 text-sm py-2 px-3 rounded-md text-white flex items-center gap-2 justify-between font-medium'>
+            <div className='flex items-center gap-2'>
+              <FileText className='w-5 h-5 text-white' />
+              {uploadedFile?.file?.name}
+            </div>
 
             <Trash
               className='w-5 h-5 cursor-pointer'
