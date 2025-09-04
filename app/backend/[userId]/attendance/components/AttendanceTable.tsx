@@ -126,7 +126,7 @@ export function AttendanceTable({
       },
       {
         accessorKey: 'days_absent',
-        header: 'Days in a month',
+        header: 'Days Absent',
         cell: function ({ row }) {
           return <div className='capitalize'>{row.getValue('days_absent')}</div>
         }

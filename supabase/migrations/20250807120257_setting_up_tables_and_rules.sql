@@ -667,7 +667,7 @@ BEGIN
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Create the trigger
 CREATE TRIGGER trigger_update_attendance
