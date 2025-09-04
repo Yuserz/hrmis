@@ -101,7 +101,7 @@ export function AttendanceTable({
         accessorKey: 'email',
         header: 'Email',
         cell: function ({ row }) {
-          return <div className='capitalize'>{row.original.users?.email}</div>
+          return <div className='font-medium'>{row.original.users?.email}</div>
         }
       },
       {

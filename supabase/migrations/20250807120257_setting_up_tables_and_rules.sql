@@ -41,9 +41,11 @@ CREATE TABLE public.attendance_summary (
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
     total_hours INTEGER NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('completed', 'incomplete', 'half-day')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE,
-    archived_at TIMESTAMP WITH TIME ZONE
+    archived_at TIMESTAMP WITH TIME ZONE,
+    CONSTRAINT idx_unique_attendance_summary UNIQUE (user_id, timestamp)
 );
 
 CREATE INDEX idx_attendance_summary_employee_id ON public.attendance_summary(user_id);
@@ -609,20 +611,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Create a function to update attendance based on login/logout and days_absent
 CREATE OR REPLACE FUNCTION update_attendance_on_logout()
 RETURNS TRIGGER AS $$
 DECLARE
     login_time TIMESTAMP WITH TIME ZONE;
     total_days_in_month INTEGER;
-    day_count INTEGER;
+    days_present_count INTEGER;
 BEGIN
-    -- Dynamically get the total days in the month
     SELECT EXTRACT(DAY FROM (DATE_TRUNC('month', NEW.timestamp) + INTERVAL '1 month - 1 day')) INTO total_days_in_month;
 
-    -- Check if the new record is a potential logout (next timestamp after a login)
     IF NEW.type IN (1, 15) THEN
-        -- Find the previous login time for the same employee_id on the same day
         SELECT timestamp INTO login_time
         FROM biometrics
         WHERE employee_id = NEW.employee_id
@@ -640,9 +638,8 @@ BEGIN
         LIMIT 1;
 
         IF login_time IS NOT NULL THEN
-            -- Count distinct days with login/logout pairs for this employee and month
             SELECT COUNT(DISTINCT DATE(b.timestamp))
-            INTO day_count
+            INTO days_present_count
             FROM biometrics b
             WHERE b.employee_id = NEW.employee_id
               AND DATE_TRUNC('month', b.timestamp) = DATE_TRUNC('month', NEW.timestamp)
@@ -654,23 +651,101 @@ BEGIN
                     AND b2.timestamp > b.timestamp
               );
 
-            -- Update attendance for the month
             INSERT INTO attendance (employee_id, user_id, month, days_present, days_absent)
             VALUES (NEW.employee_id, (SELECT id FROM users WHERE employee_id = NEW.employee_id), 
-                    DATE_TRUNC('month', NEW.timestamp), day_count, total_days_in_month - day_count)
+                    DATE_TRUNC('month', NEW.timestamp), days_present_count, total_days_in_month - days_present_count)
             ON CONFLICT (employee_id, month) DO UPDATE
-            SET days_present = day_count,
-                days_absent = GREATEST(total_days_in_month - day_count, 0),
+            SET days_present = days_present_count,
+                days_absent = total_days_in_month - days_present_count, 
                 updated_at = CURRENT_TIMESTAMP;
         END IF;
     END IF;
 
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql;
 
 -- Create the trigger
 CREATE TRIGGER trigger_update_attendance
 AFTER INSERT ON biometrics
 FOR EACH ROW
 EXECUTE FUNCTION update_attendance_on_logout();
+
+-- Create a function to update attendance_summary based on biometrics
+CREATE OR REPLACE FUNCTION update_attendance_summary()
+RETURNS TRIGGER AS $$
+DECLARE
+    earliest_login TIMESTAMP WITH TIME ZONE;
+    latest_logout TIMESTAMP WITH TIME ZONE;
+    total_hours_calculated INTEGER;
+    user_id_val UUID;
+BEGIN
+    -- Get the user_id from the users table based on employee_id
+    SELECT id INTO user_id_val
+    FROM users
+    WHERE employee_id = NEW.employee_id;
+
+    IF user_id_val IS NOT NULL THEN
+        -- Check all timestamps for the same employee_id and day
+        IF NEW.type IN (1, 15) THEN
+            -- Find the earliest login and latest logout on the same day
+            SELECT MIN(timestamp) INTO earliest_login
+            FROM biometrics
+            WHERE employee_id = NEW.employee_id
+              AND DATE(timestamp) = DATE(NEW.timestamp)
+              AND type IN (1, 15);
+
+            SELECT MAX(timestamp) INTO latest_logout
+            FROM biometrics
+            WHERE employee_id = NEW.employee_id
+              AND DATE(timestamp) = DATE(NEW.timestamp)
+              AND type IN (1, 15);
+
+            IF earliest_login IS NOT NULL AND latest_logout IS NOT NULL AND earliest_login != latest_logout THEN
+                -- Calculate total hours as the span from earliest login to latest logout
+                total_hours_calculated = FLOOR(EXTRACT(EPOCH FROM (latest_logout - earliest_login)) / 3600);
+
+                -- Determine status based on total hours
+                IF total_hours_calculated > 8 THEN
+                    INSERT INTO attendance_summary (user_id, timestamp, total_hours, status)
+                    VALUES (user_id_val, DATE_TRUNC('day', NEW.timestamp), total_hours_calculated, 'completed')
+                    ON CONFLICT (user_id, timestamp) DO UPDATE
+                    SET total_hours = total_hours_calculated,
+                        status = 'completed',
+                        updated_at = CURRENT_TIMESTAMP;
+                ELSIF total_hours_calculated <= 4 THEN
+                    INSERT INTO attendance_summary (user_id, timestamp, total_hours, status)
+                    VALUES (user_id_val, DATE_TRUNC('day', NEW.timestamp), total_hours_calculated, 'half-day')
+                    ON CONFLICT (user_id, timestamp) DO UPDATE
+                    SET total_hours = total_hours_calculated,
+                        status = 'half-day',
+                        updated_at = CURRENT_TIMESTAMP;
+                ELSE
+                    INSERT INTO attendance_summary (user_id, timestamp, total_hours, status)
+                    VALUES (user_id_val, DATE_TRUNC('day', NEW.timestamp), total_hours_calculated, 'completed')
+                    ON CONFLICT (user_id, timestamp) DO UPDATE
+                    SET total_hours = total_hours_calculated,
+                        status = 'completed',
+                        updated_at = CURRENT_TIMESTAMP;
+                END IF;
+            ELSE
+                -- No valid span (e.g., only one timestamp or all same time), mark as incomplete
+                INSERT INTO attendance_summary (user_id, timestamp, total_hours, status)
+                VALUES (user_id_val, DATE_TRUNC('day', NEW.timestamp), 0, 'incomplete')
+                ON CONFLICT (user_id, timestamp) DO UPDATE
+                SET total_hours = 0,
+                    status = 'incomplete',
+                    updated_at = CURRENT_TIMESTAMP;
+            END IF;
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create the trigger
+CREATE TRIGGER trigger_update_attendance_summary
+AFTER INSERT ON biometrics
+FOR EACH ROW
+EXECUTE FUNCTION update_attendance_summary();
