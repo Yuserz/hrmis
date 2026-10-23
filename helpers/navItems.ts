@@ -37,6 +37,12 @@ export const employeeMenus = (id: string): SideMenu[] => {
       url: `/backend/${id}/dashboard`,
       icon: LayoutDashboard,
       isActive: true
+    },
+    {
+      title: 'Information Management',
+      url: `/backend/${id}/personal-info`,
+      icon: LayoutDashboard,
+      isActive: false
     }
   ]
 }
